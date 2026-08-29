@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BrandScent Co.">
+<meta name="application-name" content="BrandScent Co.">
+<meta name="theme-color" content="#120E0A">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>BrandScent Co. — Formula Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#120E0A;
+    --surface:#1C1710;
+    --surface-2:#241D14;
+    --surface-3:#2D2519;
+    --text:#EDE4D0;
+    --text-soft:#AEA087;
+    --text-faint:#786D57;
+    --amber:#D9A441;
+    --amber-deep:#B9832E;
+    --amber-soft:rgba(217,164,65,0.14);
+    --sage:#7FA087;
+    --sage-soft:rgba(127,160,135,0.14);
+    --rust:#C1573D;
+    --rust-soft:rgba(193,87,61,0.14);
+    --border:rgba(237,228,208,0.09);
+    --border-strong:rgba(237,228,208,0.20);
+    --radius:8px;
+    --radius-lg:13px;
+    --font-display:'Fraunces',serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber-soft);color:var(--text)}
+  a{color:var(--amber)}
+
+  /* ---- layout shell ---- */
+  #app{display:flex;min-height:100vh}
+
+  #sidebar{
+    width:236px;flex-shrink:0;background:var(--surface);
+    border-right:1px solid var(--border);
+    padding:26px 18px;position:fixed;top:0;left:0;bottom:0;
+    display:flex;flex-direction:column;
+    overflow-y:auto;
+  }
+  .brand{padding:2px 10px 22px 10px;border-bottom:1px solid var(--border);margin-bottom:18px}
+  .brand-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+  .brand-name{font-family:var(--font-display);font-style:italic;font-weight:500;font-size:21px;color:var(--text);letter-spacing:0.01em;line-height:1.15}
+  .brand-sub{font-size:11px;color:var(--text-faint);margin-top:4px}
+
+  nav.tabs{display:flex;flex-direction:column;gap:2px}
+  .tab-btn{
+    display:flex;align-items:center;gap:10px;
+    text-align:left;background:transparent;border:none;
+    color:var(--text-soft);font-family:var(--font-body);font-size:13.5px;font-weight:500;
+    padding:10px 12px;border-radius:var(--radius);cursor:pointer;
+    border-left:2px solid transparent;
+    transition:background .15s,color .15s;
+  }
+  .tab-btn .tab-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;opacity:0.85}
+  .tab-btn:hover{background:var(--surface-2);color:var(--text)}
+  .tab-btn.active{background:var(--surface-3);color:var(--text);border-left-color:var(--amber)}
+
+  .sidebar-foot{margin-top:auto;padding:14px 10px 2px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-faint)}
+  .save-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sage);margin-right:6px;box-shadow:0 0 0 3px var(--sage-soft)}
+
+  #main{margin-left:236px;flex:1;padding:34px 42px 60px 42px;max-width:1180px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;flex-wrap:wrap;gap:10px}
+  .topbar h1{font-family:var(--font-display);font-weight:500;font-size:29px;margin:0 0 3px 0;letter-spacing:0.005em}
+  .topbar .sub{color:var(--text-soft);font-size:13px}
+
+  /* ---- primitives ---- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px}
+  .card-title{font-family:var(--font-display);font-weight:500;font-size:17px;color:var(--text);margin-bottom:4px}
+  .card-sub{font-size:11.5px;color:var(--text-faint);margin-bottom:14px}
+  .eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-faint)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media (max-width:900px){.grid2{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}}
+
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:0}
+  .field label{font-size:11.5px;color:var(--text-soft)}
+  input[type=text],input[type=number],select,textarea{
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius);
+    color:var(--text);font-family:var(--font-body);font-size:13.5px;padding:9px 11px;width:100%;
+  }
+  input[type=number]{font-family:var(--font-mono)}
+  input::placeholder{color:var(--text-faint)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--amber)}
+  input[type=checkbox]{accent-color:var(--amber)}
+
+  .btn{
+    font-family:var(--font-body);font-size:12.5px;font-weight:600;cursor:pointer;
+    border-radius:var(--radius);padding:9px 15px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--text-soft);transition:all .15s;
+  }
+  .btn:hover{border-color:var(--text-soft);color:var(--text)}
+  .btn-gold{background:var(--amber);border-color:var(--amber);color:#1C1408}
+  .btn-gold:hover{background:var(--amber-deep);border-color:var(--amber-deep);color:#1C1408}
+  .btn-ghost{border-color:transparent}
+  .btn-danger{border-color:rgba(193,87,61,0.35);color:var(--rust)}
+  .btn-danger:hover{border-color:var(--rust);color:var(--rust)}
+  .btn-sm{padding:6px 11px;font-size:11.5px}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.04em;padding:3px 9px;border-radius:20px;border:1px solid var(--border-strong);color:var(--text-soft);cursor:pointer;background:transparent}
+  .pill.active{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
+
+  hr.rule{border:none;border-top:1px solid var(--border);margin:16px 0}
+  .datatable{width:100%;border-collapse:collapse}
+  .datatable th,.datatable td{padding:6px 8px;white-space:nowrap}
+  .datatable thead th{text-align:left;border-bottom:1px solid var(--border-strong)}
+  .datatable tbody tr{border-bottom:1px solid var(--border)}
+  .datatable .num{text-align:right;font-variant-numeric:tabular-nums}
+
+  .empty{padding:30px 10px;text-align:center;color:var(--text-faint)}
+  .empty .empty-mark{font-family:var(--font-display);font-size:26px;color:var(--text-faint);margin-bottom:8px}
+
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  /* ---- signature element: tincture vial fill indicator ---- */
+  .vial{position:relative;display:inline-block;width:13px;height:32px;border:1.3px solid var(--border-strong);
+    border-radius:2px 2px 6px 6px;background:var(--surface-2);overflow:hidden;vertical-align:middle;flex-shrink:0}
+  .vial::before{content:'';position:absolute;top:-4px;left:3px;width:5.4px;height:4px;background:var(--surface-2);
+    border:1.3px solid var(--border-strong);border-bottom:none}
+  .vial-fill{position:absolute;left:0;right:0;bottom:0;transition:height .35s ease}
+  .vial-wrap{display:inline-flex;align-items:center;gap:8px}
+  .vial-label{font-family:var(--font-mono);font-size:10.5px;color:var(--text-soft);line-height:1.25}
+  .vial-label b{color:var(--text);font-size:12px}
+
+  @media print{ #sidebar{display:none} #main{margin-left:0} }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-eyebrow">Formula Bench</div>
+      <div class="brand-name">BrandScent Co.</div>
+      <div class="brand-sub">Blend costing &amp; production tools</div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn" data-tab="dashboard" onclick="showTab('dashboard')"><span class="tab-icon">🏠</span> Dashboard</button>
+      <button class="tab-btn" data-tab="scents" onclick="showTab('scents')"><span class="tab-icon">◈</span> My Scents</button>
+      <button class="tab-btn" data-tab="planner" onclick="showTab('planner')"><span class="tab-icon">🧪</span> Planner</button>
+      <button class="tab-btn" data-tab="inventory" onclick="showTab('inventory')"><span class="tab-icon">▤</span> Inventory</button>
+      <button class="tab-btn" data-tab="restock" onclick="showTab('restock')"><span class="tab-icon">🛒</span> Restock</button>
+      <button class="tab-btn" data-tab="bundles" onclick="showTab('bundles')"><span class="tab-icon">🎁</span> Bundles</button>
+      <button class="tab-btn" data-tab="sales" onclick="showTab('sales')"><span class="tab-icon">🧾</span> Sales</button>
+      <button class="tab-btn" data-tab="clients" onclick="showTab('clients')"><span class="tab-icon">🤝</span> Clients</button>
+      <button class="tab-btn" data-tab="quotes" onclick="showTab('quotes')"><span class="tab-icon">📄</span> Quotes</button>
+      <button class="tab-btn" data-tab="shared" onclick="showTab('shared')"><span class="tab-icon">⚙</span> Shared Costs</button>
+    </nav>
+    <div class="sidebar-foot" id="sync-indicator"><span class="save-dot"></span>Saved on this device</div>
+  </aside>
+
+  <main id="main">
+
+    <!-- ============================= TAB: DASHBOARD ============================= -->
+    <section id="tab-dashboard" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="sub">Your business at a glance.</div>
+        </div>
+      </div>
+      <div id="dash-metrics"></div>
+      <div class="grid2" style="margin-top:20px;align-items:start">
+        <div id="dash-stock"></div>
+        <div id="dash-quotes"></div>
+      </div>
+      <div class="grid2" style="margin-top:20px;align-items:start">
+        <div id="dash-clients"></div>
+        <div id="dash-sales"></div>
+      </div>
+    </section>
+
+    <!-- ============================= TAB: MY SCENTS ============================= -->
+    <section id="tab-scents" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>My Scents</h1>
+          <div class="sub">Every blend in your range — recipe, packaging and price per size.</div>
+        </div>
+        <button class="btn btn-gold" onclick="addScent()">+ Add scent</button>
+      </div>
+      <div id="scent-subtabs" style="display:flex;gap:6px;margin-bottom:18px"></div>
+      <div id="scent-list"></div>
+    </section>
+
+    <!-- ============================= TAB: PLANNER ============================= -->
+    <section id="tab-planner" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Planner</h1>
+          <div class="sub">Work out a production run, then price a gift bundle.</div>
+        </div>
+      </div>
+      <div id="planner-production"></div>
+      <div id="planner-bundle" style="margin-top:30px"></div>
+    </section>
+
+    <!-- ============================= TAB: INVENTORY ============================= -->
+    <section id="tab-inventory" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Inventory</h1>
+          <div class="sub">Stock on hand for oils, bottles and labels — with low-stock warnings.</div>
+        </div>
+      </div>
+      <div id="inv-subtabs" style="display:flex;gap:6px;margin-bottom:18px"></div>
+      <div id="inv-list"></div>
+    </section>
+
+    <!-- ============================= TAB: RESTOCK ============================= -->
+    <section id="tab-restock" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Restock</h1>
+          <div class="sub">What to buy next — pulled automatically from low-stock inventory, plus anything else you need.</div>
+        </div>
+        <button class="btn btn-gold" onclick="addRestockExtra()">+ Add item to buy</button>
+      </div>
+      <div id="restock-auto"></div>
+      <div id="restock-extra" style="margin-top:30px"></div>
+    </section>
+
+    <!-- ============================= TAB: BUNDLES ============================= -->
+    <section id="tab-bundles" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Bundles</h1>
+          <div class="sub">Gift sets you've put together — contents, price and stock on hand.</div>
+        </div>
+        <button class="btn btn-gold" onclick="addBundle()">+ Add bundle</button>
+      </div>
+      <div id="bundles-list"></div>
+    </section>
+
+    <!-- ============================= TAB: SALES ============================= -->
+    <section id="tab-sales" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Sales</h1>
+          <div class="sub">Record every sale, and see revenue and profit as you go.</div>
+        </div>
+      </div>
+      <div id="sales-body"></div>
+    </section>
+
+    <!-- ============================= TAB: CLIENTS ============================= -->
+    <section id="tab-clients" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Clients</h1>
+          <div class="sub">Everyone who buys from you, with what they've spent so far.</div>
+        </div>
+        <button class="btn btn-gold" onclick="addClient()">+ Add client</button>
+      </div>
+      <div id="clients-list"></div>
+    </section>
+
+    <!-- ============================= TAB: QUOTES ============================= -->
+    <section id="tab-quotes" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Quotes</h1>
+          <div class="sub">Build a downloadable quote for a client — our price, their recommended resale price, and their potential profit.</div>
+        </div>
+        <button class="btn btn-gold" onclick="newQuoteDraft()">+ New quote</button>
+      </div>
+      <div id="quote-builder"></div>
+      <div id="quote-saved" style="margin-top:30px"></div>
+    </section>
+
+    <!-- ============================= TAB: SHARED COSTS ============================= -->
+    <section id="tab-shared" style="display:none">
+      <div class="topbar">
+        <div>
+          <h1>Shared Costs</h1>
+          <div class="sub">Defaults used across every scent's cost calculation. Override per scent any time.</div>
+        </div>
+      </div>
+      <div id="shared-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ============================================================
+// STORAGE
+// ============================================================
+function load(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; }
+}
+function save(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+
+// ============================================================
+// DATA MODEL
+// ============================================================
+const SCENT_CATEGORIES = [
+  { key:'perfume', label:'Perfume' },
+  { key:'room',    label:'Room Spray' },
+  { key:'reed',    label:'Reed Diffuser' },
+];
+
+let scents = load('bsc_scents_v1', null) || [];
+// Existing scents saved before batch auto-calc was added keep their current (manually-set) batch size.
+scents.forEach(s=>{ if(s.batchMlAuto === undefined) s.batchMlAuto = false; });
+let shared = load('bsc_shared_v1', null) || {
+  alcohol: 85, alcoholReed: 40,
+  labelCost: 3.5, thankyouCost: 2, bagCost: 6, otherPackaging: 4,
+  transport: 400, scentCount: 3,
+  labourRate: 90, labourHrs: 0.25,
+  website: 150, unitsMonth: 40,
+  courier: 65, courierAbsorb: false,
+  paygate: 3.5,
+};
+let bottleDefaults = load('bsc_bottles_v1', null) || [
+  {ml:10, cost:9}, {ml:30, cost:14}, {ml:50, cost:18}, {ml:100, cost:26},
+];
+let inventory = load('bsc_inventory_v1', null) || { bottle:[], label:[], oil:[], alcohol:[] };
+if(!inventory.alcohol) inventory.alcohol = [];
+let clients = load('bsc_clients_v1', null) || [];
+let sales = load('bsc_sales_v1', null) || [];
+let bundlesMade = load('bsc_bundles_made_v1', null) || [];
+let quotes = load('bsc_quotes_v1', null) || [];
+let restockExtras = load('bsc_restock_extra_v1', null) || [];
+
+function saveRestockExtras(skipPush){ save('bsc_restock_extra_v1', restockExtras); if(!skipPush) queuePush('restockExtras'); }
+
+function saveQuotes(skipPush){ save('bsc_quotes_v1', quotes); if(!skipPush) queuePush('quotes'); }
+function newQuoteId(){ return 'q' + Date.now() + Math.floor(Math.random()*1000); }
+
+const BANK_DETAILS = {
+  bank: 'Capitec',
+  holder: 'MR KATLEGO LELAKA',
+  business: 'Brandscentco',
+  accType: 'Entrepreneur Account',
+  accNumber: '2588667941',
+  swift: 'CABLZAJJ',
+  branchCode: '470010',
+};
+
+function saveClients(skipPush){ save('bsc_clients_v1', clients); if(!skipPush) queuePush('clients'); }
+function saveSales(skipPush){ save('bsc_sales_v1', sales); if(!skipPush) queuePush('sales'); }
+function saveBundlesMade(skipPush){ save('bsc_bundles_made_v1', bundlesMade); if(!skipPush) queuePush('bundlesMade'); }
+function newClientId(){ return 'c' + Date.now() + Math.floor(Math.random()*1000); }
+function newSaleId(){ return 'sale' + Date.now() + Math.floor(Math.random()*1000); }
+function newBundleId(){ return 'bdl' + Date.now() + Math.floor(Math.random()*1000); }
+
+function saveScents(skipPush){ scents.forEach(s=>{ if(s.sizePrices) s.sizePrices.sort((a,b)=>a.ml-b.ml); }); save('bsc_scents_v1', scents); if(!skipPush) queuePush('scents'); }
+function saveShared(skipPush){ save('bsc_shared_v1', shared); if(!skipPush) queuePush('shared'); }
+function saveBottleDefaults(skipPush){ save('bsc_bottles_v1', bottleDefaults); if(!skipPush) queuePush('bottleDefaults'); }
+function saveInventory(skipPush){ save('bsc_inventory_v1', inventory); if(!skipPush) queuePush('inventory'); }
+
+function newScentId(){ return 's' + Date.now() + Math.floor(Math.random()*1000); }
+
+// ============================================================
+// GOOGLE SHEET SYNC
+// ============================================================
+let syncSettings = load('bsc_sync_v1', null) || { url:'', pwd:'' };
+function saveSyncSettings(){ save('bsc_sync_v1', syncSettings); }
+function syncConfigured(){ return !!(syncSettings.url && syncSettings.pwd); }
+
+let syncStatus = 'idle'; // idle | syncing | synced | error | offline
+function setSyncStatus(s){
+  syncStatus = s;
+  renderSyncIndicator();
+  const badge = document.getElementById('sync-settings-status');
+  if(badge) renderSyncSettingsStatus();
+}
+function renderSyncIndicator(){
+  const el = document.getElementById('sync-indicator');
+  if(!el) return;
+  const map = {
+    idle:    { dot:'var(--text-faint)', text: syncConfigured() ? 'Connected to Google Sheet' : 'Saved on this device only' },
+    syncing: { dot:'var(--amber)',      text:'Syncing to Google Sheet…' },
+    synced:  { dot:'var(--sage)',       text:'Synced to Google Sheet' },
+    error:   { dot:'var(--rust)',       text:'Sync failed — check connection' },
+    offline: { dot:'var(--rust)',       text:'Offline — changes queued' },
+  };
+  const m = map[syncStatus] || map.idle;
+  el.innerHTML = `<span class="save-dot" style="background:${m.dot};box-shadow:0 0 0 3px ${m.dot}22"></span>${m.text}`;
+}
+
+// This is the single source of truth mapping each dataset to its Sheet "key"
+const SYNC_KEYS = [
+  { key:'scents',         get:()=>scents,         set:v=>{ scents=v; },         save:saveScents },
+  { key:'shared',         get:()=>shared,         set:v=>{ shared=v; },         save:saveShared },
+  { key:'bottleDefaults', get:()=>bottleDefaults, set:v=>{ bottleDefaults=v; }, save:saveBottleDefaults },
+  { key:'inventory',      get:()=>inventory,      set:v=>{ inventory=v; },      save:saveInventory },
+  { key:'bundlesMade',    get:()=>bundlesMade,    set:v=>{ bundlesMade=v; },    save:saveBundlesMade },
+  { key:'clients',        get:()=>clients,        set:v=>{ clients=v; },        save:saveClients },
+  { key:'sales',          get:()=>sales,          set:v=>{ sales=v; },          save:saveSales },
+  { key:'quotes',         get:()=>quotes,         set:v=>{ quotes=v; },         save:saveQuotes },
+  { key:'restockExtras',  get:()=>restockExtras,  set:v=>{ restockExtras=v; },  save:saveRestockExtras },
+];
+
+async function gsFetchGet(params){
+  const qs = new URLSearchParams({ ...params, pwd: syncSettings.pwd });
+  const res = await fetch(`${syncSettings.url}?${qs.toString()}`, { redirect:'follow' });
+  return res.json();
+}
+async function gsFetchPost(body){
+  const res = await fetch(syncSettings.url, {
+    method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({ ...body, pwd: syncSettings.pwd }),
+  });
+  return res.json();
+}
+
+let pushTimer = null;
+let pendingPushKeys = new Set();
+function queuePush(key){
+  if(!syncConfigured()) return;
+  pendingPushKeys.add(key);
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(flushPush, 1000);
+}
+async function flushPush(){
+  if(!pendingPushKeys.size || !syncConfigured()) return;
+  const data = {};
+  pendingPushKeys.forEach(k=>{
+    const entry = SYNC_KEYS.find(s=>s.key===k);
+    if(entry) data[k] = JSON.stringify(entry.get());
+  });
+  pendingPushKeys.clear();
+  if(!navigator.onLine){ setSyncStatus('offline'); queueOfflinePush(data); return; }
+  setSyncStatus('syncing');
+  try{
+    const res = await gsFetchPost({ action:'setAll', data });
+    if(res && res.error) throw new Error(res.error);
+    setSyncStatus('synced');
+  }catch(e){ setSyncStatus('error'); queueOfflinePush(data); }
+}
+function queueOfflinePush(data){
+  const q = load('bsc_sync_queue_v1', {});
+  Object.assign(q, data);
+  save('bsc_sync_queue_v1', q);
+}
+async function flushOfflineQueue(){
+  const q = load('bsc_sync_queue_v1', {});
+  if(!Object.keys(q).length || !syncConfigured() || !navigator.onLine) return;
+  setSyncStatus('syncing');
+  try{
+    const res = await gsFetchPost({ action:'setAll', data:q });
+    if(res && res.error) throw new Error(res.error);
+    save('bsc_sync_queue_v1', {});
+    setSyncStatus('synced');
+  }catch(e){ setSyncStatus('error'); }
+}
+window.addEventListener('online',  ()=>{ flushOfflineQueue(); });
+window.addEventListener('offline', ()=>{ setSyncStatus('offline'); });
+
+// Pulls everything from the Sheet. On startup this only adopts sheet data that
+// has as much or more content than what's already on this device, so an empty
+// or older sheet can never wipe out local work. Manual "Pull now" always wins.
+async function pullFromSheet(manual){
+  if(!syncConfigured()) return false;
+  setSyncStatus('syncing');
+  try{
+    const res = await gsFetchGet({ action:'getAll' });
+    if(res && res.error) throw new Error(res.error);
+    const data = res.data || {};
+    SYNC_KEYS.forEach(entry=>{
+      const raw = data[entry.key];
+      if(!raw) return;
+      let parsed;
+      try{ parsed = JSON.parse(raw); }catch(e){ return; }
+      const sizeOf = v => Array.isArray(v) ? v.length : (v && typeof v==='object' ? Object.keys(v).length : 0);
+      if(manual || sizeOf(parsed) >= sizeOf(entry.get())){
+        entry.set(parsed);
+        entry.save(true); // skipPush — we just pulled this, no need to push it straight back
+      }
+    });
+    setSyncStatus('synced');
+    return true;
+  }catch(e){ setSyncStatus('error'); return false; }
+}
+
+async function testSyncConnection(){
+  if(!syncSettings.url || !syncSettings.pwd){ alert('Enter both the Web App URL and password first.'); return; }
+  setSyncStatus('syncing');
+  try{
+    const res = await gsFetchGet({ action:'getAll' });
+    if(res && res.error){ setSyncStatus('error'); alert('Connection failed: ' + res.error); return; }
+    setSyncStatus('synced');
+    alert('✅ Connected! Your Google Sheet is reachable.');
+  }catch(e){ setSyncStatus('error'); alert('Connection failed — double check the URL is a deployed Web App that is accessible.'); }
+}
+async function pushAllNow(){
+  if(!syncConfigured()){ alert('Enter both the Web App URL and password first.'); return; }
+  setSyncStatus('syncing');
+  const data = {};
+  SYNC_KEYS.forEach(entry=>{ data[entry.key] = JSON.stringify(entry.get()); });
+  try{
+    const res = await gsFetchPost({ action:'setAll', data });
+    if(res && res.error) throw new Error(res.error);
+    setSyncStatus('synced');
+    alert('✅ All data pushed to your Google Sheet.');
+  }catch(e){ setSyncStatus('error'); alert('Push failed — ' + e.message); }
+}
+async function pullAllNow(){
+  if(!syncConfigured()){ alert('Enter both the Web App URL and password first.'); return; }
+  if(!confirm('This replaces the data in this browser with whatever is in the Google Sheet. Continue?')) return;
+  const ok = await pullFromSheet(true);
+  if(ok){ alert('✅ Pulled the latest data from your Google Sheet.'); refreshCurrentTab(); }
+  else alert('Pull failed — check the URL and password.');
+}
+
+// ============================================================
+// COST ENGINE
+// ============================================================
+function getBottleDefaultCost(ml){
+  if(!bottleDefaults.length) return 0;
+  const exact = bottleDefaults.find(b=>b.ml===ml);
+  if(exact) return exact.cost;
+  return bottleDefaults.reduce((best,b)=> Math.abs(b.ml-ml) < Math.abs(best.ml-ml) ? b : best).cost;
+}
+
+function calcOilPerMl(s){
+  const paid = parseFloat(s.oilPaid) || 0;
+  const bottleMl = parseFloat(s.oilBottleMl) || 0;
+  return bottleMl > 0 ? paid / bottleMl : 0;
+}
+
+// Full landed cost per bottle for a given scent at a given fill size (ml)
+function calcCost(s, bottleMl){
+  if(!bottleMl || bottleMl <= 0) return null;
+  const bottles = Math.floor((parseFloat(s.batchMl)||0) / bottleMl);
+  if(bottles === 0) return null;
+  const oilConc = (parseFloat(s.oilConc)||0) / 100;
+  const batchL  = (parseFloat(s.batchMl)||0) / 1000;
+  const oilCostPerMl = calcOilPerMl(s);
+  const oilPB = (batchL * oilConc * oilCostPerMl * 1000) / bottles;
+  const isReed = (s.category||'') === 'reed';
+  const alcRate = isReed ? (parseFloat(shared.alcoholReed)||0) : (parseFloat(shared.alcohol)||0);
+  const alcPB = (batchL * (1 - oilConc) * alcRate) / bottles;
+  const spMatch = (s.sizePrices||[]).find(sp => sp.ml === bottleMl);
+  const bottleCost = (spMatch && spMatch.bottleCost !== undefined && spMatch.bottleCost !== '') ? (parseFloat(spMatch.bottleCost)||0) : getBottleDefaultCost(bottleMl);
+  const labelCost    = s.labelOverride    !== '' && s.labelOverride    !== undefined ? (parseFloat(s.labelOverride)||0)    : (parseFloat(shared.labelCost)||0);
+  const thankyouCost = s.thankyouOverride !== '' && s.thankyouOverride !== undefined ? (parseFloat(s.thankyouOverride)||0) : (parseFloat(shared.thankyouCost)||0);
+  const bagCost       = s.bagOverride      !== '' && s.bagOverride      !== undefined ? (parseFloat(s.bagOverride)||0)      : (parseFloat(shared.bagCost)||0);
+  const otherCost     = s.otherOverride    !== '' && s.otherOverride    !== undefined ? (parseFloat(s.otherOverride)||0)    : (parseFloat(shared.otherPackaging)||0);
+  const transportPB = (parseFloat(shared.transport)||0) / Math.max(1, parseFloat(shared.scentCount)||1) / bottles;
+  const labourPB = s.noLabour ? 0 : ((parseFloat(shared.labourRate)||0) * (parseFloat(shared.labourHrs)||0)) / bottles;
+  const websitePB = (parseFloat(shared.website)||0) / Math.max(1, parseFloat(shared.unitsMonth)||1);
+  const courierPB = shared.courierAbsorb ? (parseFloat(shared.courier)||0) : 0;
+  const subtotal = oilPB + alcPB + transportPB + labourPB + bottleCost + labelCost + thankyouCost + bagCost + otherCost + websitePB + courierPB;
+  const paygateRate = (parseFloat(shared.paygate)||0) / 100;
+  const totalCostPB = paygateRate < 1 ? subtotal / (1 - paygateRate) : subtotal;
+  const paygatePB = totalCostPB - subtotal;
+  return { bottles, oilPB, alcPB, bottleCost, labelCost, thankyouCost, bagCost, otherCost, transportPB, labourPB, websitePB, courierPB, subtotal, paygatePB, totalCostPB };
+}
+
+function escAttr(str){ return String(str==null?'':str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function fmtR(n){ return 'R ' + (isFinite(n)?n:0).toFixed(2); }
+function fmtR0(n){ return 'R ' + Math.round(isFinite(n)?n:0).toLocaleString('en-ZA'); }
+function fmtPct(n){ return (isFinite(n)?n:0).toFixed(0) + '%'; }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+// signature vial component: pct 0-100+
+function vial(pct, colorVar){
+  const clamped = Math.max(0, Math.min(100, pct));
+  const color = colorVar || (pct < 25 ? '--rust' : pct < 60 ? '--amber' : '--sage');
+  return `<span class="vial"><span class="vial-fill" style="height:${clamped}%;background:var(${color})"></span></span>`;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+const ALL_TABS = ['dashboard','scents','planner','inventory','restock','bundles','sales','clients','quotes','shared'];
+let currentTab = 'scents';
+function showTab(t){
+  currentTab = t;
+  ALL_TABS.forEach(x=>{
+    document.getElementById('tab-'+x).style.display = (x===t) ? 'block' : 'none';
+    document.querySelector(`.tab-btn[data-tab="${x}"]`).classList.toggle('active', x===t);
+  });
+  localStorage.setItem('bsc_last_tab', t);
+  if(t==='dashboard')  renderDashboard();
+  if(t==='scents')    renderScents();
+  if(t==='planner')   initPlanner();
+  if(t==='inventory') renderInventory();
+  if(t==='restock')   renderRestock();
+  if(t==='bundles')   renderBundles();
+  if(t==='sales')     renderSales();
+  if(t==='clients')   renderClients();
+  if(t==='quotes')    initQuote();
+  if(t==='shared')    renderShared();
+}
+function refreshCurrentTab(){ showTab(currentTab); }
+
+// ============================================================
+// DASHBOARD TAB
+// ============================================================
+function quoteOursTotal(q){
+  const items = (q.items||[]).filter(it=>it.scentId);
+  let total = items.reduce((a,it)=>a+(parseFloat(it.ourPrice)||0)*(parseInt(it.qty)||0),0);
+  total += (q.extras||[]).reduce((a,ex)=>a+(parseFloat(ex.amount)||0),0);
+  return total;
+}
+
+function renderDashboard(){
+  const now = new Date();
+  const thisMonth = now.toISOString().slice(0,7);
+  const monthSales = sales.filter(s=>(s.date||'').slice(0,7)===thisMonth);
+
+  let revenue=0, profit=0;
+  const scentRevenue = {};
+  monthSales.forEach(sale=>{
+    const rev = (parseFloat(sale.price)||0) * (parseInt(sale.qty)||0);
+    revenue += rev;
+    const s = scents.find(x=>x.id==sale.scentId);
+    const cost = s ? calcCost(s, sale.ml) : null;
+    if(cost!==null) profit += (parseFloat(sale.price)-cost) * (parseInt(sale.qty)||0);
+    if(s){ scentRevenue[s.name] = (scentRevenue[s.name]||0) + rev; }
+  });
+  const topScent = Object.entries(scentRevenue).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('dash-metrics').innerHTML = `
+    <div class="grid4">
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">This month's revenue</div>
+        <div style="font-family:var(--font-display);font-size:24px;color:var(--sage)">${fmtR(revenue)}</div></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">This month's profit</div>
+        <div style="font-family:var(--font-display);font-size:24px;color:${profit>=0?'var(--sage)':'var(--rust)'}">${fmtR(profit)}</div></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">Orders this month</div>
+        <div style="font-family:var(--font-display);font-size:24px">${monthSales.length}</div></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:6px">Top scent this month</div>
+        <div style="font-family:var(--font-display);font-size:17px">${topScent ? escAttr(topScent[0]) : '—'}</div>
+        ${topScent ? `<div class="vial-label">${fmtR(topScent[1])} revenue</div>` : ''}</div>
+    </div>`;
+
+  const lowItems = getLowInventoryItems();
+  document.getElementById('dash-stock').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">Stock alerts</div>
+        <button class="btn btn-sm" onclick="showTab('restock')">Go to Restock →</button>
+      </div>
+      ${!lowItems.length ? `<div class="vial-label">Nothing is low right now — fully stocked.</div>` : lowItems.slice(0,5).map(r=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+        <span>${escAttr(r.name)} <span class="vial-label">· ${r.categoryLabel} · ${r.ml}ml</span></span>
+        <span style="color:var(--rust);font-weight:600">${r.qty} left</span>
+      </div>`).join('')}
+      ${lowItems.length>5 ? `<div class="vial-label" style="margin-top:8px">+${lowItems.length-5} more low</div>` : ''}
+    </div>`;
+
+  const recentQuotes = quotes.slice(0,5);
+  document.getElementById('dash-quotes').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">Recent quotes</div>
+        <button class="btn btn-sm" onclick="showTab('quotes')">Go to Quotes →</button>
+      </div>
+      ${!quotes.length ? `<div class="vial-label">No quotes saved yet.</div>` : recentQuotes.map(q=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+        <span>${escAttr(q.clientName||'Unnamed client')} <span class="vial-label">· ${q.date}</span></span>
+        <span style="font-weight:600">${fmtR(quoteOursTotal(q))}</span>
+      </div>`).join('')}
+    </div>`;
+
+  const clientRevenue = {};
+  sales.forEach(sale=>{
+    if(!sale.clientId) return;
+    clientRevenue[sale.clientId] = (clientRevenue[sale.clientId]||0) + (parseFloat(sale.price)||0)*(parseInt(sale.qty)||0);
+  });
+  const topClients = Object.entries(clientRevenue).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([id,rev])=>({ name: clients.find(c=>c.id===id)?.name || 'Unknown client', rev }));
+  document.getElementById('dash-clients').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">Top clients</div>
+        <button class="btn btn-sm" onclick="showTab('clients')">Go to Clients →</button>
+      </div>
+      ${!topClients.length ? `<div class="vial-label">No client sales logged yet.</div>` : topClients.map(c=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+        <span>${escAttr(c.name)}</span>
+        <span style="color:var(--sage);font-weight:600">${fmtR(c.rev)}</span>
+      </div>`).join('')}
+    </div>`;
+
+  const recentSales = [...sales].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  document.getElementById('dash-sales').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">Recent sales</div>
+        <button class="btn btn-sm" onclick="showTab('sales')">Go to Sales →</button>
+      </div>
+      ${!recentSales.length ? `<div class="vial-label">No sales logged yet.</div>` : recentSales.map(sale=>{
+        const s = scents.find(x=>x.id==sale.scentId);
+        return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+          <span>${escAttr(s?s.name:'Scent')} <span class="vial-label">· ${sale.ml}ml × ${sale.qty} · ${sale.date}</span></span>
+          <span style="color:var(--sage);font-weight:600">${fmtR((parseFloat(sale.price)||0)*(parseInt(sale.qty)||0))}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ============================================================
+// MY SCENTS TAB
+// ============================================================
+let activeScentSubTab = 'perfume';
+
+function setScentSubTab(t){ activeScentSubTab = t; renderScents(); }
+
+function renderScentSubtabs(){
+  const el = document.getElementById('scent-subtabs');
+  el.innerHTML = SCENT_CATEGORIES.map(c=>{
+    const count = scents.filter(s=>(s.category||'perfume')===c.key).length;
+    return `<button class="pill ${activeScentSubTab===c.key?'active':''}" onclick="setScentSubTab('${c.key}')">${c.label} · ${count}</button>`;
+  }).join('');
+}
+
+function addScent(){
+  scents.unshift({
+    id: newScentId(), name: 'New scent', category: activeScentSubTab,
+    oilPaid: '', oilBottleMl: '', oilConc: 20, batchMl: 500, batchMlAuto: true,
+    noLabour: false, labelOverride: '', thankyouOverride: '', bagOverride: '', otherOverride: '',
+    sizePrices: [{ml:50, bottleCost:'', price:''}, {ml:100, bottleCost:'', price:''}],
+  });
+  saveScents(); renderScents();
+}
+function recalcScentBatch(i){
+  const s = scents[i];
+  if(s.batchMlAuto === false) return;
+  const oilMl = parseFloat(s.oilBottleMl)||0;
+  const concFrac = (parseFloat(s.oilConc)||0)/100;
+  if(oilMl>0 && concFrac>0) s.batchMl = Math.round(oilMl/concFrac);
+}
+function resetScentBatchAuto(i){
+  scents[i].batchMlAuto = true;
+  recalcScentBatch(i);
+  saveScents(); renderScents();
+}
+function duplicateScent(i){
+  const copy = JSON.parse(JSON.stringify(scents[i]));
+  copy.id = newScentId(); copy.name = scents[i].name + ' (copy)';
+  scents.splice(i+1, 0, copy);
+  saveScents(); renderScents();
+}
+function removeScent(i){
+  if(confirm(`Remove "${scents[i].name}"? This can't be undone.`)){
+    scents.splice(i,1); saveScents(); renderScents();
+  }
+}
+
+function renderScents(){
+  renderScentSubtabs();
+  const el = document.getElementById('scent-list');
+  const visible = scents.map((s,i)=>({s,i})).filter(({s})=>(s.category||'perfume')===activeScentSubTab);
+  if(!visible.length){
+    el.innerHTML = `<div class="empty"><div class="empty-mark">◈</div><p>No ${SCENT_CATEGORIES.find(c=>c.key===activeScentSubTab).label.toLowerCase()} scents yet — click "+ Add scent".</p></div>`;
+    return;
+  }
+  el.innerHTML = visible.map(({s,i})=>buildScentCard(s,i)).join('');
+}
+
+function buildScentCard(s, i){
+  const oilPerMl = calcOilPerMl(s);
+  const sizeRows = (s.sizePrices||[]).map((sp, pi)=>{
+    const cr = calcCost(s, sp.ml);
+    const cost = cr ? cr.totalCostPB : null;
+    const price = sp.price === '' || sp.price === undefined ? null : parseFloat(sp.price);
+    const margin = (cost && price) ? ((price-cost)/price*100) : null;
+    return `
+    <div style="display:grid;grid-template-columns:70px 1fr 1fr 100px 26px;gap:8px;align-items:center;margin-bottom:6px">
+      <input type="number" value="${sp.ml}" min="1" step="1" title="Size (ml)"
+        style="text-align:center" onchange="scents[${i}].sizePrices[${pi}].ml=parseFloat(this.value)||50;saveScents();renderScents()">
+      <div style="position:relative">
+        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+        <input type="number" value="${sp.bottleCost}" min="0" step="0.01" placeholder="bottle cost" title="Bottle cost override (blank = default)"
+          style="padding-left:20px" onchange="scents[${i}].sizePrices[${pi}].bottleCost=this.value===''?'':parseFloat(this.value);saveScents();renderScents()">
+      </div>
+      <div style="position:relative">
+        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+        <input type="number" value="${sp.price}" min="0" step="0.01" placeholder="selling price" title="Your selling price"
+          style="padding-left:20px" onchange="scents[${i}].sizePrices[${pi}].price=this.value===''?'':parseFloat(this.value);saveScents();renderScents()">
+      </div>
+      <div class="vial-label" style="text-align:right">
+        ${cost===null ? '<span style="color:var(--text-faint)">—</span>' : (margin===null ? `cost ${fmtR(cost)}` : `<b style="color:${margin<20?'var(--rust)':'var(--sage)'}">${fmtPct(margin)}</b> mgn`)}
+      </div>
+      <button class="btn btn-sm btn-ghost" title="Remove size" style="padding:4px 7px"
+        onclick="scents[${i}].sizePrices.splice(${pi},1);saveScents();renderScents()">✕</button>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:12px">
+        ${vial(Math.min(100,(parseFloat(s.oilConc)||0)*2.5))}
+        <div>
+          <input value="${escAttr(s.name)}" placeholder="Scent name" style="font-family:var(--font-display);font-size:18px;font-weight:500;background:transparent;border:none;color:var(--text);padding:0;width:260px"
+            onchange="scents[${i}].name=this.value;saveScents();renderScents()">
+          <div class="vial-label">${s.oilConc}% concentration</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${SCENT_CATEGORIES.map(c=>`<button class="pill ${((s.category||'perfume')===c.key)?'active':''}" onclick="scents[${i}].category='${c.key}';saveScents();renderScents()">${c.label}</button>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="duplicateScent(${i})">⧉ Duplicate</button>
+        <button class="btn btn-sm btn-danger" onclick="removeScent(${i})">✕ Remove</button>
+      </div>
+    </div>
+
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="field"><label>Oil cost paid (R)</label>
+        <input type="number" value="${s.oilPaid}" min="0" step="0.01" placeholder="e.g. 350"
+          onchange="scents[${i}].oilPaid=this.value===''?'':parseFloat(this.value);saveScents();renderScents()"></div>
+      <div class="field"><label>Oil you have (ml)</label>
+        <input type="number" value="${s.oilBottleMl}" min="0" step="1" placeholder="e.g. 100"
+          onchange="scents[${i}].oilBottleMl=this.value===''?'':parseFloat(this.value);recalcScentBatch(${i});saveScents();renderScents()"></div>
+      <div class="field"><label>Concentration (%)</label>
+        <input type="number" value="${s.oilConc}" min="1" max="100" step="0.5"
+          onchange="scents[${i}].oilConc=parseFloat(this.value)||20;recalcScentBatch(${i});saveScents();renderScents()"></div>
+      <div class="field"><label>Batch size (ml) ${s.batchMlAuto===false?'<span class="vial-label">(manual)</span>':'<span class="vial-label">(auto)</span>'}</label>
+        <div style="display:flex;gap:4px">
+          <input type="number" value="${s.batchMl}" min="1" step="10" style="flex:1"
+            onchange="scents[${i}].batchMl=parseFloat(this.value)||500;scents[${i}].batchMlAuto=false;saveScents();renderScents()">
+          ${s.batchMlAuto===false ? `<button class="btn btn-sm" title="Recalculate from oil + concentration" onclick="resetScentBatchAuto(${i})">↻</button>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="vial-label" style="margin-bottom:16px">Oil cost per ml: <b>${fmtR(oilPerMl)}</b>${s.batchMlAuto!==false && parseFloat(s.oilBottleMl)>0 ? ` · Batch auto-calculated from ${s.oilBottleMl}ml oil at ${s.oilConc}% concentration` : ''}</div>
+
+    <div style="display:grid;grid-template-columns:70px 1fr 1fr 100px 26px;gap:8px;margin-bottom:6px">
+      <span class="eyebrow">Size</span><span class="eyebrow">Bottle cost</span><span class="eyebrow">Sell price</span><span class="eyebrow" style="text-align:right">Margin</span><span></span>
+    </div>
+    ${sizeRows || '<div class="vial-label" style="margin-bottom:8px">No sizes yet.</div>'}
+    <button class="btn btn-sm" onclick="scents[${i}].sizePrices.push({ml:50,bottleCost:'',price:''});saveScents();renderScents()">+ Add size</button>
+
+    <hr class="rule">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <input type="checkbox" id="nolabour-${s.id}" ${s.noLabour?'checked':''} onchange="scents[${i}].noLabour=this.checked;saveScents();renderScents()">
+      <label for="nolabour-${s.id}" style="font-size:12.5px;color:var(--text-soft)">No labour cost for this scent (e.g. pre-made / outsourced)</label>
+    </div>
+    <div class="grid4">
+      <div class="field"><label>Label override (R)</label>
+        <input type="number" value="${s.labelOverride}" min="0" step="0.01" placeholder="shared default"
+          onchange="scents[${i}].labelOverride=this.value===''?'':parseFloat(this.value);saveScents()"></div>
+      <div class="field"><label>Thank-you card (R)</label>
+        <input type="number" value="${s.thankyouOverride}" min="0" step="0.01" placeholder="shared default"
+          onchange="scents[${i}].thankyouOverride=this.value===''?'':parseFloat(this.value);saveScents()"></div>
+      <div class="field"><label>Bag override (R)</label>
+        <input type="number" value="${s.bagOverride}" min="0" step="0.01" placeholder="shared default"
+          onchange="scents[${i}].bagOverride=this.value===''?'':parseFloat(this.value);saveScents()"></div>
+      <div class="field"><label>Other packaging (R)</label>
+        <input type="number" value="${s.otherOverride}" min="0" step="0.01" placeholder="shared default"
+          onchange="scents[${i}].otherOverride=this.value===''?'':parseFloat(this.value);saveScents()"></div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// SHARED COSTS TAB
+// ============================================================
+function shField(key, label, opts){
+  opts = opts || {};
+  const val = shared[key];
+  return `
+    <div class="field">
+      <label>${label}</label>
+      <input type="number" value="${val}" min="${opts.min!==undefined?opts.min:0}" step="${opts.step||0.01}" placeholder="${opts.placeholder||''}"
+        onchange="shared['${key}']=parseFloat(this.value)||0;saveShared();renderShared()">
+    </div>`;
+}
+
+function renderShared(){
+  const el = document.getElementById('shared-body');
+  el.innerHTML = `
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Alcohol</div>
+        <div class="card-sub">Per litre, used to fill the non-oil portion of each batch</div>
+        <div class="grid2">
+          ${shField('alcohol', 'Perfume / room spray (R / litre)')}
+          ${shField('alcoholReed', 'Reed diffuser base (R / litre)')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Packaging defaults</div>
+        <div class="card-sub">Used unless a scent has its own override</div>
+        <div class="grid2" style="row-gap:14px">
+          ${shField('labelCost', 'Label (R)')}
+          ${shField('thankyouCost', 'Thank-you card (R)')}
+          ${shField('bagCost', 'Bag (R)')}
+          ${shField('otherPackaging', 'Other packaging (R)')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Transport</div>
+        <div class="card-sub">Total cost spread evenly across your scent range</div>
+        <div class="grid2">
+          ${shField('transport', 'Transport total (R)')}
+          ${shField('scentCount', 'Spread over how many scents', {min:1,step:1})}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Labour</div>
+        <div class="card-sub">Time cost per batch, divided across bottles produced</div>
+        <div class="grid2">
+          ${shField('labourRate', 'Rate (R / hour)')}
+          ${shField('labourHrs', 'Hours per batch', {step:0.05})}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Website &amp; courier</div>
+        <div class="card-sub">Fixed monthly costs spread per unit sold</div>
+        <div class="grid2" style="margin-bottom:14px">
+          ${shField('website', 'Website / hosting (R / month)')}
+          ${shField('unitsMonth', 'Units sold per month', {min:1,step:1})}
+        </div>
+        <div class="grid2" style="align-items:end">
+          ${shField('courier', 'Courier cost (R)')}
+          <div class="field">
+            <label>Absorb courier into product cost?</label>
+            <select onchange="shared.courierAbsorb=(this.value==='yes');saveShared();renderShared()">
+              <option value="no" ${!shared.courierAbsorb?'selected':''}>No — charged separately</option>
+              <option value="yes" ${shared.courierAbsorb?'selected':''}>Yes — build into price</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Payment gateway</div>
+        <div class="card-sub">Percentage fee grossed up into total cost per bottle</div>
+        ${shField('paygate', 'Payment gateway fee (%)', {step:0.1,max:99})}
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card-title">Default bottle costs</div>
+      <div class="card-sub">Fallback cost when a scent doesn't override the bottle price for a size</div>
+      <div id="bottle-defaults-list"></div>
+      <button class="btn btn-sm" style="margin-top:8px" onclick="bottleDefaults.push({ml:50,cost:0});saveBottleDefaults();renderShared()">+ Add size</button>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card-title">☁ Google Sheet sync</div>
+      <div class="card-sub">Back everything up to a Google Sheet, and share it across devices — changes push automatically once connected.</div>
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="field"><label>Web App URL</label>
+          <input type="text" value="${escAttr(syncSettings.url)}" placeholder="https://script.google.com/macros/s/…/exec"
+            onchange="syncSettings.url=this.value.trim();saveSyncSettings();renderSyncSettingsStatus()"></div>
+        <div class="field"><label>Password</label>
+          <input type="text" value="${escAttr(syncSettings.pwd)}" placeholder="matches PASSWORD in the script"
+            onchange="syncSettings.pwd=this.value;saveSyncSettings();renderSyncSettingsStatus()"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-sm" onclick="testSyncConnection()">🔌 Test connection</button>
+        <button class="btn btn-sm" onclick="pushAllNow()">⬆ Push all data now</button>
+        <button class="btn btn-sm" onclick="pullAllNow()">⬇ Pull from sheet now</button>
+      </div>
+      <div id="sync-settings-status" class="vial-label" style="margin-bottom:14px"></div>
+      <details>
+        <summary style="cursor:pointer;font-size:12.5px;color:var(--amber)">How do I set this up?</summary>
+        <div style="font-size:12.5px;color:var(--text-soft);margin-top:10px;line-height:1.7">
+          1. Create a new Google Sheet (any name).<br>
+          2. Open <strong>Extensions → Apps Script</strong>, delete the placeholder code, and paste in the sync script Claude gave you in chat.<br>
+          3. In that script, change the <code>PASSWORD</code> value to something only you know.<br>
+          4. Click <strong>Deploy → New deployment → Web app</strong>. Set "Execute as" to <em>Me</em> and "Who has access" to <em>Anyone</em>, then Deploy.<br>
+          5. Copy the Web App URL it gives you, paste it above along with your password, then click "Test connection".
+        </div>
+      </details>
+    </div>
+  `;
+  const bl = document.getElementById('bottle-defaults-list');
+  bl.innerHTML = bottleDefaults.map((b,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 30px;gap:10px;align-items:end;margin-bottom:8px">
+      <div class="field"><label>Size (ml)</label>
+        <input type="number" value="${b.ml}" min="1" step="1" onchange="bottleDefaults[${i}].ml=parseFloat(this.value)||50;saveBottleDefaults()"></div>
+      <div class="field"><label>Bottle cost (R)</label>
+        <input type="number" value="${b.cost}" min="0" step="0.01" onchange="bottleDefaults[${i}].cost=parseFloat(this.value)||0;saveBottleDefaults()"></div>
+      <button class="btn btn-sm btn-ghost" style="padding:8px" onclick="bottleDefaults.splice(${i},1);saveBottleDefaults();renderShared()">✕</button>
+    </div>`).join('');
+  renderSyncSettingsStatus();
+}
+function renderSyncSettingsStatus(){
+  const el = document.getElementById('sync-settings-status');
+  if(!el) return;
+  if(!syncConfigured()){ el.textContent = 'Not connected yet — paste your Web App URL and password above.'; return; }
+  const map = {
+    idle:'Connected. Changes will sync automatically.', syncing:'Syncing…',
+    synced:'✓ Last sync succeeded.', error:'⚠ Last sync failed — check the URL and password.',
+    offline:'⚠ Offline — changes are queued and will sync once back online.',
+  };
+  el.textContent = map[syncStatus] || '';
+}
+
+// ============================================================
+// PLANNER TAB — PRODUCTION PLANNER
+// ============================================================
+let plSizes = load('bsc_pl_sizes_v1', null) || [{ml:50, bottleCost:'', sellPrice:''}, {ml:100, bottleCost:'', sellPrice:''}];
+let plExtraCosts = load('bsc_pl_extra_v1', null) || [{name:'Label', cost:3.5}, {name:'Bag', cost:6}];
+function savePlSizes(){ save('bsc_pl_sizes_v1', plSizes); }
+function savePlExtra(){ save('bsc_pl_extra_v1', plExtraCosts); }
+
+function renderPlannerProductionShell(){
+  const el = document.getElementById('planner-production');
+  el.innerHTML = `
+    <div class="card-title" style="margin-bottom:2px">🧪 Production run</div>
+    <div class="card-sub">Work out how many bottles a batch of oil makes, and what each one costs.</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="field" style="margin-bottom:14px">
+          <label>Base on a scent (optional — autofills below)</label>
+          <select id="pl-scent" onchange="plannerScentChanged()"><option value="">— Manual entry —</option></select>
+        </div>
+        <div class="grid4" style="margin-bottom:16px">
+          <div class="field"><label>Oil you have (ml)</label><input type="number" id="pl-oil-ml" min="1" step="1" placeholder="e.g. 500" oninput="runPlanner()"></div>
+          <div class="field"><label>Concentration (%)</label><input type="number" id="pl-conc" min="1" max="100" step="0.5" value="20" oninput="runPlanner()"></div>
+          <div class="field"><label>Oil cost paid (R)</label><input type="number" id="pl-oil-cost" min="0" step="0.01" placeholder="e.g. 350" oninput="runPlanner()"></div>
+          <div class="field"><label>Alcohol (R / litre)</label><input type="number" id="pl-alc-cost" min="0" step="0.01" placeholder="e.g. 85" oninput="runPlanner()"></div>
+        </div>
+        <div class="eyebrow" style="margin-bottom:8px">Bottle sizes to produce</div>
+        <div id="pl-sizes-list"></div>
+        <button class="btn btn-sm" onclick="addPlannerSize()" style="margin-top:6px">+ Add size</button>
+        <hr class="rule">
+        <div class="eyebrow" style="margin-bottom:8px">Other costs (per bottle)</div>
+        <div id="pl-extra-list"></div>
+        <button class="btn btn-sm" onclick="addPlannerExtraCost()" style="margin-top:6px">+ Add cost</button>
+        <hr class="rule">
+        <div class="grid2">
+          <div class="field"><label>Our target margin — recommended price to charge client (%)</label><input type="number" id="pl-margin" min="1" max="99" value="50" oninput="runPlanner()"></div>
+          <div class="field"><label>Client's resale margin — recommended price for client to sell at (%)</label><input type="number" id="pl-client-margin" min="1" max="99" value="50" oninput="runPlanner()"></div>
+        </div>
+      </div>
+      <div class="card" id="pl-results">
+        <div class="card-title">Production plan</div>
+        <div class="card-sub" style="margin-bottom:0">Fill in your oil details to see the plan.</div>
+      </div>
+    </div>
+    <div id="pl-breakdown" style="margin-top:18px"></div>
+  `;
+}
+
+function plannerScentChanged(){
+  const scentId = document.getElementById('pl-scent').value;
+  const s = scents.find(x=>x.id==scentId);
+  if(!s) return;
+  document.getElementById('pl-conc').value = s.oilConc || 20;
+  if(s.oilPaid !== '') document.getElementById('pl-oil-cost').value = s.oilPaid;
+  if(s.oilBottleMl !== '') document.getElementById('pl-oil-ml').value = s.oilBottleMl;
+  if(s.sizePrices && s.sizePrices.length){
+    plSizes = s.sizePrices.map(sp=>({ml:sp.ml, bottleCost:sp.bottleCost||'', sellPrice:sp.price||''}));
+    savePlSizes(); renderPlSizes();
+  }
+  runPlanner();
+}
+
+function addPlannerSize(){ plSizes.push({ml:50, bottleCost:'', sellPrice:''}); savePlSizes(); renderPlSizes(); runPlanner(); }
+function renderPlSizes(){
+  const el = document.getElementById('pl-sizes-list');
+  if(!el) return;
+  el.innerHTML = plSizes.map((ps,i)=>`
+    <div style="display:grid;grid-template-columns:80px 1fr 1fr 28px;gap:8px;align-items:end;margin-bottom:8px">
+      <div class="field"><label>Size (ml)</label><input type="number" value="${ps.ml}" min="1" step="1" onchange="plSizes[${i}].ml=parseFloat(this.value)||50;savePlSizes();runPlanner()"></div>
+      <div class="field"><label>Bottle cost (R)</label><input type="number" value="${ps.bottleCost}" min="0" step="0.01" placeholder="default" onchange="plSizes[${i}].bottleCost=this.value===''?'':parseFloat(this.value);savePlSizes();runPlanner()"></div>
+      <div class="field"><label>Sell price (R)</label><input type="number" value="${ps.sellPrice}" min="0" step="0.01" placeholder="e.g. 280" onchange="plSizes[${i}].sellPrice=this.value===''?'':parseFloat(this.value);savePlSizes();runPlanner()"></div>
+      <button class="btn btn-sm btn-ghost" style="padding:8px" onclick="plSizes.splice(${i},1);savePlSizes();renderPlSizes();runPlanner()">✕</button>
+    </div>`).join('');
+}
+
+function addPlannerExtraCost(){ plExtraCosts.push({name:'New cost', cost:0}); savePlExtra(); renderPlExtra(); runPlanner(); }
+function renderPlExtra(){
+  const el = document.getElementById('pl-extra-list');
+  if(!el) return;
+  el.innerHTML = plExtraCosts.length===0 ? `<div class="vial-label">No extra costs added.</div>` : plExtraCosts.map((ec,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input value="${escAttr(ec.name)}" placeholder="Cost name" style="flex:1"
+        oninput="plExtraCosts[${i}].name=this.value;savePlExtra();runPlanner()">
+      <div style="position:relative;width:100px">
+        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+        <input type="number" value="${ec.cost}" min="0" step="0.01" style="padding-left:20px" oninput="plExtraCosts[${i}].cost=parseFloat(this.value)||0;savePlExtra();runPlanner()">
+      </div>
+      <button class="btn btn-sm btn-ghost" style="padding:6px 10px" onclick="plExtraCosts.splice(${i},1);savePlExtra();renderPlExtra();runPlanner()">✕</button>
+    </div>`).join('');
+}
+
+function applyPlannerRecPrice(i){
+  const targetMrg = (parseFloat(document.getElementById('pl-margin')?.value) || 50) / 100;
+  const ps = plSizes[i];
+  if(!ps) return;
+  const conc = parseFloat(document.getElementById('pl-conc')?.value) || 20;
+  const oilMl = parseFloat(document.getElementById('pl-oil-ml')?.value) || 0;
+  const oilCost = parseFloat(document.getElementById('pl-oil-cost')?.value) || 0;
+  const alcCost = parseFloat(document.getElementById('pl-alc-cost')?.value) || 0;
+  const concFrac = conc/100;
+  const oilCostPerMl = oilMl>0 ? oilCost/oilMl : 0;
+  const alcCostPerMl = alcCost/1000;
+  const oilCostPB = ps.ml * concFrac * oilCostPerMl;
+  const alcCostPB = ps.ml * (1-concFrac) * alcCostPerMl;
+  const bottleCost = ps.bottleCost !== '' ? parseFloat(ps.bottleCost) : getBottleDefaultCost(ps.ml);
+  const extraCostPB = plExtraCosts.reduce((a,ec)=>a+(parseFloat(ec.cost)||0),0);
+  const totalCostPB = oilCostPB + alcCostPB + bottleCost + extraCostPB;
+  const recPrice = totalCostPB / (1-targetMrg);
+  ps.sellPrice = Math.round(recPrice);
+  savePlSizes(); renderPlSizes(); runPlanner();
+}
+
+function runPlanner(){
+  const oilMl   = parseFloat(document.getElementById('pl-oil-ml')?.value) || 0;
+  const conc    = parseFloat(document.getElementById('pl-conc')?.value) || 20;
+  const oilCost = parseFloat(document.getElementById('pl-oil-cost')?.value) || 0;
+  const alcCost = parseFloat(document.getElementById('pl-alc-cost')?.value) || 0;
+  const resultsEl   = document.getElementById('pl-results');
+  const breakdownEl = document.getElementById('pl-breakdown');
+  if(!resultsEl) return;
+  if(!oilMl || !plSizes.length){
+    resultsEl.innerHTML = `<div class="card-title">Production plan</div><div class="card-sub" style="margin-bottom:0">Fill in your oil details to see the plan.</div>`;
+    breakdownEl.innerHTML = '';
+    return;
+  }
+  const concFrac = conc/100;
+  const totalBatchMl = concFrac>0 ? oilMl/concFrac : 0;
+  const alcMl = totalBatchMl - oilMl;
+  const oilCostPerMl = oilMl>0 ? oilCost/oilMl : 0;
+  const alcCostPerMl = alcCost/1000;
+  const targetMrg = (parseFloat(document.getElementById('pl-margin')?.value) || 50) / 100;
+  const clientMrg = (parseFloat(document.getElementById('pl-client-margin')?.value) || 50) / 100;
+
+  const sizeResults = plSizes.map(ps=>{
+    const bottles = Math.floor(totalBatchMl / ps.ml);
+    const oilPerBottle = ps.ml * concFrac;
+    const alcPerBottle = ps.ml * (1-concFrac);
+    const oilCostPB = oilPerBottle * oilCostPerMl;
+    const alcCostPB = alcPerBottle * alcCostPerMl;
+    const bottleCost = ps.bottleCost !== '' ? parseFloat(ps.bottleCost) : getBottleDefaultCost(ps.ml);
+    const extraCostPB = plExtraCosts.reduce((a,ec)=>a+(parseFloat(ec.cost)||0),0);
+    const totalCostPB = oilCostPB + alcCostPB + bottleCost + extraCostPB;
+    const totalCost = totalCostPB * bottles;
+    const sellPrice = ps.sellPrice !== '' ? parseFloat(ps.sellPrice) : null;
+    const revenue = sellPrice ? sellPrice*bottles : null;
+    const profit = sellPrice ? (sellPrice-totalCostPB)*bottles : null;
+    const margin = sellPrice ? ((sellPrice-totalCostPB)/sellPrice*100) : null;
+    const recPrice = totalCostPB / (1-targetMrg);
+    const recProfit = recPrice - totalCostPB;
+    const clientRecPrice = recPrice / (1-clientMrg);
+    const clientRecProfit = clientRecPrice - recPrice;
+    return {...ps, bottles, oilPerBottle, alcPerBottle, oilCostPB, alcCostPB, bottleCost, extraCostPB, totalCostPB, totalCost, revenue, profit, margin, recPrice, recProfit, clientRecPrice, clientRecProfit};
+  });
+
+  resultsEl.innerHTML = `
+    <div class="card-title" style="margin-bottom:12px">Production plan</div>
+    <div style="padding:12px 14px;background:var(--amber-soft);border-left:2px solid var(--amber);border-radius:var(--radius);margin-bottom:14px">
+      <div class="eyebrow" style="color:var(--amber);margin-bottom:8px">From ${oilMl}ml oil at ${conc}% concentration</div>
+      <div class="grid2" style="row-gap:8px">
+        <div><div class="vial-label">Total batch</div><div style="font-family:var(--font-display);font-size:19px">${totalBatchMl.toFixed(0)}ml</div></div>
+        <div><div class="vial-label">Alcohol needed</div><div style="font-family:var(--font-display);font-size:19px">${alcMl.toFixed(0)}ml</div></div>
+        <div><div class="vial-label">Oil cost / ml</div><div style="font-family:var(--font-display);font-size:19px">${fmtR(oilCostPerMl)}</div></div>
+        <div><div class="vial-label">Total oil cost</div><div style="font-family:var(--font-display);font-size:19px;color:var(--rust)">${fmtR(oilCost)}</div></div>
+      </div>
+    </div>
+    ${sizeResults.map((r,i)=>{
+      const mc = r.margin!==null ? (r.margin>=40?'var(--sage)':r.margin>=20?'var(--amber)':'var(--rust)') : 'var(--text-soft)';
+      return `
+      <div style="margin-bottom:10px;padding:12px 14px;border:1px solid var(--border-strong);border-radius:var(--radius)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:var(--font-display);font-size:16px">${r.ml}ml bottles</div>
+          <div style="font-family:var(--font-display);font-size:22px;color:var(--amber)">${r.bottles} <span style="font-size:12px;color:var(--text-soft);font-family:var(--font-body)">bottles</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12px">
+          <div><span class="vial-label">Cost / bottle</span><br><span style="font-weight:600;color:var(--rust)">${fmtR(r.totalCostPB)}</span></div>
+          <div><span class="vial-label">Total cost</span><br><span style="font-weight:600">${fmtR(r.totalCost)}</span></div>
+          ${r.revenue!==null ? `
+          <div><span class="vial-label">Revenue</span><br><span style="font-weight:600;color:var(--sage)">${fmtR(r.revenue)}</span></div>
+          <div><span class="vial-label">Profit</span><br><span style="font-weight:600;color:${mc}">${fmtR(r.profit)}</span></div>
+          <div><span class="vial-label">Margin</span><br><span style="font-weight:600;color:${mc}">${r.margin.toFixed(1)}%</span></div>
+          ` : `<div><span class="vial-label">Add a sell price for profit</span></div>`}
+        </div>
+        <div style="margin-top:10px;padding:10px 12px;background:var(--sage-soft);border:1px solid rgba(127,160,135,0.35);border-radius:var(--radius);font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div>💡 Recommended price to charge client at <strong>${(targetMrg*100).toFixed(0)}%</strong> margin:
+            <strong style="color:var(--sage)">${fmtR0(r.recPrice)}</strong>
+            <span class="vial-label">(our profit ${fmtR0(r.recProfit)}/bottle)</span>
+          </div>
+          <button class="btn btn-sm" onclick="applyPlannerRecPrice(${i})">Use this price</button>
+        </div>
+        <div style="margin-top:8px;padding:10px 12px;background:var(--amber-soft);border:1px solid rgba(201,168,76,0.35);border-radius:var(--radius);font-size:12.5px">
+          🎯 Recommended price for <strong>client to resell</strong> at <strong>${(clientMrg*100).toFixed(0)}%</strong> margin:
+          <strong style="color:var(--amber-deep)">${fmtR0(r.clientRecPrice)}</strong>
+          <span class="vial-label">(client profit ${fmtR0(r.clientRecProfit)}/bottle)</span>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+
+  breakdownEl.innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">Detailed breakdown</div>
+      <div style="overflow-x:auto">
+      <table class="datatable" style="font-size:12.5px">
+        <thead><tr>
+          <th>Size</th><th class="num">Bottles</th><th class="num">Oil/bottle</th><th class="num">Oil cost</th>
+          <th class="num">Alc/bottle</th><th class="num">Alc cost</th><th class="num">Bottle</th>
+          ${plExtraCosts.map(ec=>`<th class="num">${ec.name}</th>`).join('')}
+          <th class="num">Total/bottle</th><th class="num">Total cost</th>
+          <th class="num">Rec. price (${(targetMrg*100).toFixed(0)}%)</th>
+          <th class="num">Client resale (${(clientMrg*100).toFixed(0)}%)</th>
+          ${sizeResults[0] && sizeResults[0].revenue!==null ? '<th class="num">Revenue</th><th class="num">Profit</th><th class="num">Margin</th>' : ''}
+        </tr></thead>
+        <tbody>
+          ${sizeResults.map(r=>`<tr>
+            <td style="font-weight:600">${r.ml}ml</td>
+            <td class="num" style="color:var(--amber);font-weight:600">${r.bottles}</td>
+            <td class="num">${r.oilPerBottle.toFixed(1)}ml</td>
+            <td class="num">${fmtR(r.oilCostPB)}</td>
+            <td class="num">${r.alcPerBottle.toFixed(1)}ml</td>
+            <td class="num">${fmtR(r.alcCostPB)}</td>
+            <td class="num">${fmtR(r.bottleCost)}</td>
+            ${plExtraCosts.map(ec=>`<td class="num">${fmtR(parseFloat(ec.cost)||0)}</td>`).join('')}
+            <td class="num" style="color:var(--rust);font-weight:600">${fmtR(r.totalCostPB)}</td>
+            <td class="num">${fmtR(r.totalCost)}</td>
+            <td class="num" style="color:var(--sage);font-weight:600">${fmtR0(r.recPrice)}</td>
+            <td class="num" style="color:var(--amber-deep);font-weight:600">${fmtR0(r.clientRecPrice)}</td>
+            ${r.revenue!==null ? `
+            <td class="num" style="color:var(--sage)">${fmtR(r.revenue)}</td>
+            <td class="num" style="color:${r.profit>=0?'var(--sage)':'var(--rust)'}">${fmtR(r.profit)}</td>
+            <td class="num" style="color:${r.margin>=40?'var(--sage)':r.margin>=20?'var(--amber)':'var(--rust)'}">${r.margin.toFixed(1)}%</td>` : (sizeResults[0] && sizeResults[0].revenue!==null ? '<td colspan="3" class="num" style="color:var(--text-faint)">—</td>' : '')}
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// PLANNER TAB — BUNDLE PLANNER
+// ============================================================
+const BUNDLE_COST_LABELS = [
+  {key:'oil',label:'Oil'},{key:'alc',label:'Alcohol'},{key:'bottle',label:'Bottle'},
+  {key:'label',label:'Label'},{key:'thankyou',label:'Thank-you card'},{key:'bag',label:'Bag'},
+  {key:'other',label:'Other pkg'},{key:'transport',label:'Transport'},{key:'labour',label:'Labour'},
+];
+function makeBundleSlot(){ return { scentId:'', ml:50, qty:1, price:'', open:false, costs:{oil:'',alc:'',bottle:'',label:'',thankyou:'',bag:'',other:'',transport:'',labour:''} }; }
+let bundleSlots = [makeBundleSlot(), makeBundleSlot()];
+
+function addBundleSlot(){ bundleSlots.push(makeBundleSlot()); renderBundleSlots(); runBundlePlanner(); }
+function removeBundleSlot(i){ bundleSlots.splice(i,1); if(!bundleSlots.length) bundleSlots.push(makeBundleSlot()); renderBundleSlots(); runBundlePlanner(); }
+
+function bundleAutoFill(i){
+  const slot = bundleSlots[i];
+  const s = scents.find(x=>x.id==slot.scentId);
+  if(!s){ slot.costs = makeBundleSlot().costs; return; }
+  const cr = calcCost(s, slot.ml);
+  if(!cr) return;
+  slot.costs = {
+    oil: cr.oilPB.toFixed(4), alc: cr.alcPB.toFixed(4), bottle: cr.bottleCost.toFixed(2),
+    label: cr.labelCost.toFixed(2), thankyou: cr.thankyouCost.toFixed(2), bag: cr.bagCost.toFixed(2),
+    other: cr.otherCost.toFixed(2), transport: cr.transportPB.toFixed(4), labour: cr.labourPB.toFixed(4),
+  };
+  if(slot.price === ''){
+    const sp = (s.sizePrices||[]).find(p=>p.ml===slot.ml);
+    if(sp && sp.price !== '') slot.price = sp.price;
+  }
+}
+
+function renderBundleShell(){
+  const el = document.getElementById('planner-bundle');
+  el.innerHTML = `
+    <div class="card-title" style="margin-bottom:2px">🎁 Bundle planner</div>
+    <div class="card-sub">Combine any number of scents into a gift set — set your own size and selling price for each.</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:10px">Bundle contents</div>
+        <div id="bundle-slots"></div>
+        <button class="btn btn-sm" onclick="addBundleSlot()" style="margin-top:4px">+ Add scent</button>
+        <hr class="rule">
+        <div class="field" style="margin-bottom:12px">
+          <label>Bundle box / packaging cost (R)</label>
+          <input type="number" id="bundle-box-cost" min="0" step="0.01" placeholder="e.g. 45" oninput="runBundlePlanner()">
+        </div>
+        <div class="field">
+          <label>Target margin (%)</label>
+          <input type="number" id="bundle-margin" min="1" max="99" value="50" oninput="runBundlePlanner()">
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Client's resale margin (%)</label>
+          <input type="number" id="bundle-client-margin" min="1" max="99" value="50" oninput="runBundlePlanner()">
+        </div>
+      </div>
+      <div class="card" id="bundle-results">
+        <div class="card-title">Bundle summary</div>
+        <div class="card-sub" style="margin-bottom:0">Select at least 2 scents to see bundle pricing.</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBundleSlots(){
+  const el = document.getElementById('bundle-slots');
+  if(!el) return;
+  el.innerHTML = bundleSlots.map((slot,i)=>{
+    const totalCost = BUNDLE_COST_LABELS.reduce((a,c)=>a+(parseFloat(slot.costs[c.key])||0),0);
+    const costsHTML = slot.open ? `
+      <div style="margin-top:8px;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius)">
+        <div class="eyebrow" style="margin-bottom:8px">Costs per bottle (editable)</div>
+        ${BUNDLE_COST_LABELS.map(c=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <label style="font-size:11.5px;width:96px;flex-shrink:0;color:var(--text-soft)">${c.label}</label>
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+            <input type="number" value="${slot.costs[c.key]}" min="0" step="0.0001" placeholder="0.00" style="padding-left:19px;font-size:12px"
+              oninput="bundleSlots[${i}].costs['${c.key}']=this.value;runBundlePlanner()">
+          </div>
+        </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding-top:6px;border-top:1px solid var(--border);margin-top:4px">
+          <span>Cost per bottle × ${slot.qty||1}</span><span style="color:var(--rust)">${fmtR(totalCost)} × ${slot.qty||1} = ${fmtR(totalCost*(slot.qty||1))}</span>
+        </div>
+      </div>` : '';
+    return `
+    <div style="margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:var(--radius)">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="width:20px;height:20px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1C1408;flex-shrink:0">${i+1}</div>
+        <select style="flex:1" onchange="bundleSlots[${i}].scentId=this.value;bundleAutoFill(${i});renderBundleSlots();runBundlePlanner()">
+          <option value="">— Select scent —</option>
+          ${scents.map(sc=>`<option value="${sc.id}" ${sc.id==slot.scentId?'selected':''}>${sc.name}</option>`).join('')}
+        </select>
+        <div style="position:relative;width:66px;flex-shrink:0">
+          <input type="number" value="${slot.ml}" min="1" step="1" title="Bottle size (ml)" style="padding-right:20px"
+            oninput="bundleSlots[${i}].ml=parseFloat(this.value)||0;bundleAutoFill(${i});runBundlePlanner()"
+            onchange="renderBundleSlots()">
+          <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-faint);pointer-events:none">ml</span>
+        </div>
+        <input type="number" value="${slot.qty||1}" min="1" step="1" title="Number of bottles" style="width:50px;text-align:center"
+          oninput="bundleSlots[${i}].qty=parseInt(this.value)||1;runBundlePlanner()">
+        ${slot.scentId ? `<button class="btn btn-sm" onclick="bundleSlots[${i}].open=!bundleSlots[${i}].open;renderBundleSlots()">${slot.open?'▲ Hide':'✎ Costs'}</button>` : ''}
+        <button class="btn btn-sm btn-danger" title="Remove from bundle" onclick="removeBundleSlot(${i})">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <label style="font-size:11.5px;color:var(--text-soft);white-space:nowrap">Your selling price (each)</label>
+        <div style="position:relative;width:120px">
+          <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+          <input type="number" value="${slot.price}" min="0" step="0.01" placeholder="e.g. 250" style="padding-left:19px;font-size:12px"
+            oninput="bundleSlots[${i}].price=this.value;runBundlePlanner()">
+        </div>
+      </div>
+      ${costsHTML}
+    </div>`;
+  }).join('');
+}
+
+function runBundlePlanner(){
+  const resultsEl = document.getElementById('bundle-results');
+  if(!resultsEl) return;
+  const COST_KEYS = BUNDLE_COST_LABELS.map(c=>c.key);
+  const filled = bundleSlots.filter(s=>s.scentId);
+  if(filled.length < 2){
+    resultsEl.innerHTML = `<div class="card-title">Bundle summary</div><div class="card-sub" style="margin-bottom:0">Select at least 2 scents to see bundle pricing.</div>`;
+    return;
+  }
+  const boxCost = parseFloat(document.getElementById('bundle-box-cost')?.value) || 0;
+  const targetMrg = (parseFloat(document.getElementById('bundle-margin')?.value) || 50) / 100;
+  const clientMrg = (parseFloat(document.getElementById('bundle-client-margin')?.value) || 50) / 100;
+  const items = filled.map(slot=>{
+    const s = scents.find(x=>x.id==slot.scentId);
+    if(!s) return null;
+    const costPB = COST_KEYS.reduce((a,k)=>a+(parseFloat(slot.costs[k])||0),0);
+    const qty = slot.qty || 1;
+    const sp = (s.sizePrices||[]).find(p=>p.ml===slot.ml);
+    const sellPrice = (slot.price!=='' && slot.price!=null && !isNaN(parseFloat(slot.price))) ? parseFloat(slot.price) : (sp && sp.price!=='' ? parseFloat(sp.price) : null);
+    return { name:s.name, ml:slot.ml, qty, costPB, totalCost:costPB*qty, sellPrice };
+  }).filter(Boolean);
+  if(!items.length) return;
+  const totalQty = items.reduce((a,it)=>a+it.qty,0) || 1;
+  const totalCost = items.reduce((a,it)=>a+it.totalCost,0) + boxCost;
+  const recPrice = totalCost / (1-targetMrg);
+  const recProfit = recPrice - totalCost;
+  // Per-item (per scent + size) recommended prices, sharing the packaging cost evenly across all bottles
+  const boxCostPB = boxCost / totalQty;
+  items.forEach(it=>{
+    it.recPricePB = (it.costPB + boxCostPB) / (1-targetMrg);
+    it.recProfitPB = it.recPricePB - (it.costPB + boxCostPB);
+    it.clientPricePB = it.recPricePB / (1-clientMrg);
+    it.clientProfitPB = it.clientPricePB - it.recPricePB;
+  });
+  const allHavePrices = items.every(it=>it.sellPrice!==null);
+  const sumIndividual = allHavePrices ? items.reduce((a,it)=>a+it.sellPrice*it.qty,0) : null;
+  const tiers = [
+    {label:'Break-even', margin:0, color:'var(--text-soft)'},
+    {label:'Lean (30%)', margin:0.30, color:'var(--amber)'},
+    {label:'Standard (50%)', margin:0.50, color:'var(--sage)'},
+    {label:'Premium (65%)', margin:0.65, color:'var(--amber-deep)'},
+  ];
+  resultsEl.innerHTML = `
+    <div class="card-title" style="margin-bottom:12px">Bundle summary</div>
+    <div style="margin-bottom:14px">
+      ${items.map(it=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span>${it.name} <span class="vial-label">${it.ml}ml × ${it.qty}</span></span>
+        <span style="font-weight:600">${fmtR(it.totalCost)}</span>
+      </div>`).join('')}
+      ${boxCost>0?`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px"><span>Bundle packaging</span><span style="font-weight:600">${fmtR(boxCost)}</span></div>`:''}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;font-weight:700">
+        <span>Total cost</span><span style="color:var(--rust)">${fmtR(totalCost)}</span>
+      </div>
+    </div>
+    ${sumIndividual ? `<div style="padding:8px 12px;background:var(--amber-soft);border:1px solid var(--amber);border-radius:var(--radius);font-size:12px;margin-bottom:14px">
+      🏷 Individual prices sum to <strong>${fmtR(sumIndividual)}</strong> — price the bundle below this.
+    </div>` : ''}
+    <div class="eyebrow" style="margin-bottom:8px">Price recommendations</div>
+    <div class="grid2" style="margin-bottom:14px">
+      ${tiers.map(t=>{
+        const p = t.margin===0 ? totalCost : totalCost/(1-t.margin);
+        const profit = p-totalCost;
+        const discount = sumIndividual ? ((sumIndividual-p)/sumIndividual*100) : null;
+        return `<div style="padding:10px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius)">
+          <div class="eyebrow" style="margin-bottom:4px">${t.label}</div>
+          <div style="font-family:var(--font-display);font-size:21px;font-weight:600;color:${t.color}">${fmtR0(p)}</div>
+          <div class="vial-label" style="margin-top:2px">profit: <strong style="color:${t.color}">${fmtR0(profit)}</strong></div>
+          ${discount!==null?`<div style="font-size:10px;color:var(--text-faint);margin-top:1px">${discount>0?discount.toFixed(0)+'% off individual':'above individual sum'}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="padding:10px 12px;background:var(--sage-soft);border:1px solid rgba(127,160,135,0.35);border-radius:var(--radius);font-size:13px">
+      At your target <strong>${(targetMrg*100).toFixed(0)}%</strong> margin:
+      sell at <strong style="color:var(--sage)">${fmtR0(recPrice)}</strong> → profit <strong style="color:var(--sage)">${fmtR0(recProfit)}</strong>
+      ${sumIndividual && recPrice<sumIndividual ? `<span class="vial-label"> (${((sumIndividual-recPrice)/sumIndividual*100).toFixed(0)}% below individual ✓)</span>` : ''}
+    </div>
+    <div style="margin-top:8px;padding:10px 12px;background:var(--amber-soft);border:1px solid rgba(201,168,76,0.35);border-radius:var(--radius);font-size:12.5px">
+      🎯 Recommended selling price for <strong>client to resell</strong>, per scent &amp; size, at <strong>${(clientMrg*100).toFixed(0)}%</strong> client margin:
+      <div style="overflow-x:auto;margin-top:8px">
+        <table class="datatable" style="font-size:12px">
+          <thead><tr>
+            <th>Scent</th><th>Size</th>
+            <th class="num">Our price /bottle</th>
+            <th class="num">Client resells at /bottle</th>
+            <th class="num">Client profit /bottle</th>
+          </tr></thead>
+          <tbody>
+            ${items.map(it=>`<tr>
+              <td>${escAttr(it.name)}</td>
+              <td class="num">${it.ml}ml</td>
+              <td class="num" style="color:var(--sage);font-weight:600">${fmtR0(it.recPricePB)}</td>
+              <td class="num" style="color:var(--amber-deep);font-weight:600">${fmtR0(it.clientPricePB)}</td>
+              <td class="num">${fmtR0(it.clientProfitPB)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button class="btn btn-gold" style="margin-top:14px;width:100%" onclick="saveBundleFromPlanner()">💾 Save this bundle to Bundles</button>`;
+}
+
+function initPlanner(){
+  renderPlannerProductionShell();
+  renderBundleShell();
+  const sel = document.getElementById('pl-scent');
+  sel.innerHTML = '<option value="">— Manual entry —</option>' + scents.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const alcEl = document.getElementById('pl-alc-cost');
+  if(alcEl && !alcEl.value) alcEl.value = shared.alcohol;
+  renderPlSizes();
+  renderPlExtra();
+  renderBundleSlots();
+  runPlanner();
+  runBundlePlanner();
+}
+
+// ============================================================
+// INVENTORY TAB
+// ============================================================
+const INV_TYPES = [
+  { key:'bottle',  label:'Bottles',      sizeLabel:'Bottle size (ml)' },
+  { key:'label',   label:'Labels',       sizeLabel:'For size (ml)' },
+  { key:'oil',     label:'Raw oil',      sizeLabel:'Container (ml)' },
+  { key:'alcohol', label:'Alcohol',      sizeLabel:'Container (ml)' },
+];
+let activeInvTab = 'bottle';
+
+function setInvTab(t){ activeInvTab = t; renderInventory(); }
+
+function renderInvSubtabs(){
+  const el = document.getElementById('inv-subtabs');
+  el.innerHTML = INV_TYPES.map(t=>{
+    const low = (inventory[t.key]||[]).filter(x=>(parseFloat(x.qty)||0) <= (parseFloat(x.lowAlert)||0)).length;
+    return `<button class="pill ${activeInvTab===t.key?'active':''}" onclick="setInvTab('${t.key}')">${t.label} · ${(inventory[t.key]||[]).length}${low?` <span style="color:var(--rust)">(${low} low)</span>`:''}</button>`;
+  }).join('');
+}
+
+function addInventoryItem(){
+  inventory[activeInvTab] = inventory[activeInvTab] || [];
+  inventory[activeInvTab].push({ id:'inv'+Date.now()+Math.floor(Math.random()*999), scentId:'', ml:50, qty:0, lowAlert:10 });
+  saveInventory(); renderInventory();
+}
+function removeInventoryItem(i){
+  inventory[activeInvTab].splice(i,1); saveInventory(); renderInventory();
+}
+function adjustInvQty(i, delta){
+  const item = inventory[activeInvTab][i];
+  item.qty = Math.max(0, (parseFloat(item.qty)||0) + delta);
+  saveInventory(); renderInventory();
+}
+// Creates one inventory row per scent size that doesn't already have one in this category.
+// Doesn't touch rows you've already set up — safe to click again after adding a new scent.
+function syncScentsToInventory(){
+  inventory[activeInvTab] = inventory[activeInvTab] || [];
+  const existing = inventory[activeInvTab];
+  let added = 0;
+  scents.forEach(s=>{
+    const sizes = (s.sizePrices && s.sizePrices.length) ? s.sizePrices.map(sp=>sp.ml) : [50];
+    sizes.forEach(ml=>{
+      const already = existing.some(it=>it.scentId===s.id && it.ml===ml);
+      if(!already){
+        existing.push({ id:'inv'+Date.now()+Math.floor(Math.random()*1000)+added, scentId:s.id, ml, qty:0, lowAlert:10 });
+        added++;
+      }
+    });
+  });
+  saveInventory(); renderInventory();
+  if(added===0) alert('Everything from My Scents already has a row here.');
+}
+
+function renderInventory(){
+  renderInvSubtabs();
+  const typeInfo = INV_TYPES.find(t=>t.key===activeInvTab);
+  const el = document.getElementById('inv-list');
+  const items = inventory[activeInvTab] || [];
+  if(!items.length){
+    el.innerHTML = `<div class="empty"><div class="empty-mark">▤</div><p>No ${typeInfo.label.toLowerCase()} tracked yet.</p></div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-gold btn-sm" onclick="addInventoryItem()">+ Add row</button>
+        ${scents.length ? `<button class="btn btn-sm" onclick="syncScentsToInventory()">↻ Add a row for every scent size</button>` : ''}
+      </div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 110px 90px 90px 170px 30px;gap:10px;margin-bottom:8px">
+        <span class="eyebrow">Scent</span><span class="eyebrow">${typeInfo.sizeLabel}</span><span class="eyebrow">Qty on hand</span><span class="eyebrow">Alert below</span><span class="eyebrow">Status</span><span></span>
+      </div>
+      ${items.map((item,i)=>{
+        const qty = parseFloat(item.qty)||0;
+        const alert = parseFloat(item.lowAlert)||0;
+        const pct = alert>0 ? (qty/(alert*2))*100 : (qty>0?100:0);
+        const low = qty <= alert;
+        return `
+        <div style="display:grid;grid-template-columns:1fr 110px 90px 90px 170px 30px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--border)">
+          <select onchange="inventory['${activeInvTab}'][${i}].scentId=this.value;saveInventory()">
+            <option value="" ${!item.scentId?'selected':''}>— General / any —</option>
+            ${scents.map(s=>`<option value="${s.id}" ${s.id==item.scentId?'selected':''}>${s.name}</option>`).join('')}
+          </select>
+          <input type="number" value="${item.ml}" min="1" step="1" onchange="inventory['${activeInvTab}'][${i}].ml=parseFloat(this.value)||0;saveInventory()">
+          <div style="display:flex;align-items:center;gap:4px">
+            <button class="btn btn-sm btn-ghost" style="padding:3px 7px" onclick="adjustInvQty(${i},-1)">–</button>
+            <input type="number" value="${item.qty}" min="0" step="1" style="text-align:center" onchange="inventory['${activeInvTab}'][${i}].qty=parseFloat(this.value)||0;saveInventory();renderInventory()">
+            <button class="btn btn-sm btn-ghost" style="padding:3px 7px" onclick="adjustInvQty(${i},1)">+</button>
+          </div>
+          <input type="number" value="${item.lowAlert}" min="0" step="1" onchange="inventory['${activeInvTab}'][${i}].lowAlert=parseFloat(this.value)||0;saveInventory();renderInventory()">
+          <div class="vial-wrap">
+            ${vial(pct, low ? '--rust' : '--sage')}
+            <span class="vial-label">${low ? `<b style="color:var(--rust)">Low stock</b>` : `<b style="color:var(--sage)">In stock</b>`}<br>${qty} on hand</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" title="Remove" onclick="removeInventoryItem(${i})">✕</button>
+        </div>`;
+      }).join('')}
+      <button class="btn btn-sm" style="margin-top:12px" onclick="addInventoryItem()">+ Add row</button>
+      ${scents.length ? `<button class="btn btn-sm" style="margin-top:12px" onclick="syncScentsToInventory()">↻ Add a row for every scent size</button>` : ''}
+    </div>`;
+}
+
+// ============================================================
+// RESTOCK TAB (things to buy — auto-flagged from low inventory, plus a manual list)
+// ============================================================
+function getLowInventoryItems(catKeys){
+  const rows = [];
+  INV_TYPES.forEach(t=>{
+    (inventory[t.key]||[]).forEach((item,idx)=>{
+      if(catKeys && item.scentId){
+        const s = scents.find(x=>x.id===item.scentId);
+        if(s && !catKeys.includes(s.category||'perfume')) return;
+      }
+      const qty = parseFloat(item.qty)||0;
+      const alert = parseFloat(item.lowAlert)||0;
+      if(qty <= alert){
+        const s = scents.find(x=>x.id===item.scentId);
+        const target = Math.max(alert*2, alert+1);
+        const suggestedBuy = Math.max(1, Math.ceil(target - qty));
+        rows.push({
+          category: t.key, categoryLabel: t.label, idx,
+          name: s ? s.name : 'General / any',
+          ml: item.ml, qty, alert, suggestedBuy,
+        });
+      }
+    });
+  });
+  return rows;
+}
+
+const RESTOCK_TABS = [
+  { key:'perfume', label:'Perfumes',      cats:['perfume'] },
+  { key:'room',    label:'Room Spray',    cats:['room'] },
+  { key:'reed',    label:'Reed Diffuser', cats:['reed'] },
+];
+let activeRestockTab = 'perfume';
+function setRestockTab(t){ activeRestockTab = t; renderRestock(); }
+
+function restockRowsTable(rows){
+  if(!rows.length) return '';
+  return `
+    <div style="display:grid;grid-template-columns:1fr 90px 90px 90px 110px 140px;gap:10px;margin-bottom:8px">
+      <span class="eyebrow">Item</span><span class="eyebrow">Size</span><span class="eyebrow">On hand</span><span class="eyebrow">Alert</span><span class="eyebrow">Suggested buy</span><span class="eyebrow">Received</span>
+    </div>
+    ${rows.map(r=>`
+    <div style="display:grid;grid-template-columns:1fr 90px 90px 90px 110px 140px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--border)">
+      <div><span style="font-weight:600">${escAttr(r.name)}</span></div>
+      <div>${r.ml}ml</div>
+      <div style="color:var(--rust);font-weight:600">${r.qty}</div>
+      <div class="vial-label">≤ ${r.alert}</div>
+      <div style="font-weight:600;color:var(--amber-deep)">+${r.suggestedBuy}</div>
+      <div style="display:flex;gap:4px">
+        <input type="number" id="restock-qty-${r.category}-${r.idx}" value="${r.suggestedBuy}" min="1" step="1" style="width:60px">
+        <button class="btn btn-sm" onclick="restockReceive('${r.category}',${r.idx})">✓ Add</button>
+      </div>
+    </div>`).join('')}`;
+}
+
+function restockMaterialGroup(icon, title, rows){
+  if(!rows.length) return '';
+  return `<div style="margin-bottom:16px">
+    <div style="font-size:12px;font-weight:600;letter-spacing:0.06em;color:var(--amber-deep);margin-bottom:6px">${icon} ${title}</div>
+    ${restockRowsTable(rows)}
+  </div>`;
+}
+
+function restockReceive(category, idx){
+  const input = document.getElementById(`restock-qty-${category}-${idx}`);
+  const amount = parseFloat(input?.value) || 0;
+  if(amount<=0) return;
+  const item = inventory[category][idx];
+  if(!item) return;
+  item.qty = (parseFloat(item.qty)||0) + amount;
+  saveInventory();
+  renderRestock();
+}
+
+function addRestockExtra(){
+  restockExtras.unshift({ id:'rx'+Date.now()+Math.floor(Math.random()*999), label:'', qty:1, notes:'', bought:false });
+  saveRestockExtras(); renderRestock();
+}
+function removeRestockExtra(i){
+  restockExtras.splice(i,1); saveRestockExtras(); renderRestock();
+}
+function toggleRestockExtraBought(i){
+  restockExtras[i].bought = !restockExtras[i].bought;
+  saveRestockExtras(); renderRestock();
+}
+
+function renderRestockSubtabs(){
+  const el = document.getElementById('restock-subtabs');
+  if(!el) return;
+  el.innerHTML = RESTOCK_TABS.map(t=>`
+    <button onclick="setRestockTab('${t.key}')"
+      style="padding:8px 16px;font-size:12px;font-weight:600;letter-spacing:0.06em;border:none;border-bottom:2px solid ${activeRestockTab===t.key?'var(--amber-deep)':'transparent'};background:transparent;color:${activeRestockTab===t.key?'var(--text)':'var(--text-faint)'};cursor:pointer;margin-bottom:-1px">
+      ${t.label}
+    </button>`).join('');
+}
+
+function renderRestock(){
+  const autoEl = document.getElementById('restock-auto');
+  const extraEl = document.getElementById('restock-extra');
+  const tab = RESTOCK_TABS.find(t=>t.key===activeRestockTab) || RESTOCK_TABS[0];
+  const allLow = getLowInventoryItems(tab.cats);
+  const byCat = key => allLow.filter(r=>r.category===key);
+
+  const groupsHtml = restockMaterialGroup('🫙','Bottles', byCat('bottle'))
+    + restockMaterialGroup('🏷','Labels', byCat('label'))
+    + restockMaterialGroup('🧴','Oil', byCat('oil'))
+    + restockMaterialGroup('🧪','Alcohol', byCat('alcohol'));
+
+  autoEl.innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px">Flagged from Inventory</div>
+      <div class="card-sub" style="margin-bottom:14px">Anything at or below its "Alert below" level in Inventory shows up here automatically — nothing to log by hand.</div>
+      <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)" id="restock-subtabs"></div>
+      ${groupsHtml.trim() ? groupsHtml : `<div class="empty" style="padding:20px 0"><div class="empty-mark">✓</div><p>Nothing low for ${tab.label} right now.</p></div>`}
+    </div>`;
+  renderRestockSubtabs();
+
+  const activeExtras = restockExtras.filter(x=>!x.bought);
+  const boughtExtras = restockExtras.filter(x=>x.bought);
+  extraEl.innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:4px">Other things to buy</div>
+      <div class="card-sub" style="margin-bottom:14px">Anything not tracked in Inventory — packaging, ribbon, courier bags, marketing materials, and so on.</div>
+      ${!restockExtras.length ? `<div class="vial-label">Nothing on this list yet.</div>` : ''}
+      ${activeExtras.length ? `
+      <div style="display:grid;grid-template-columns:24px 1fr 80px 1fr 30px;gap:10px;margin-bottom:6px">
+        <span></span><span class="eyebrow">Item</span><span class="eyebrow">Qty</span><span class="eyebrow">Notes</span><span></span>
+      </div>
+      ${restockExtras.map((x,i)=>x.bought?'':`
+      <div style="display:grid;grid-template-columns:24px 1fr 80px 1fr 30px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--border)">
+        <input type="checkbox" onchange="toggleRestockExtraBought(${i})">
+        <input value="${escAttr(x.label)}" placeholder="e.g. Ribbon (gold, 10mm)" onchange="restockExtras[${i}].label=this.value;saveRestockExtras()">
+        <input type="number" value="${x.qty}" min="1" step="1" onchange="restockExtras[${i}].qty=parseFloat(this.value)||1;saveRestockExtras()">
+        <input value="${escAttr(x.notes||'')}" placeholder="Supplier, size, notes…" onchange="restockExtras[${i}].notes=this.value;saveRestockExtras()">
+        <button class="btn btn-sm btn-ghost" title="Remove" onclick="removeRestockExtra(${i})">✕</button>
+      </div>`).join('')}` : ''}
+      ${boughtExtras.length ? `
+      <div class="eyebrow" style="margin-top:16px;margin-bottom:6px">Bought</div>
+      ${restockExtras.map((x,i)=>!x.bought?'':`
+      <div style="display:grid;grid-template-columns:24px 1fr 80px 1fr 30px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--border);opacity:0.55">
+        <input type="checkbox" checked onchange="toggleRestockExtraBought(${i})">
+        <span style="text-decoration:line-through">${escAttr(x.label||'(unnamed)')}</span>
+        <span>${x.qty}</span>
+        <span class="vial-label">${escAttr(x.notes||'')}</span>
+        <button class="btn btn-sm btn-ghost" title="Remove" onclick="removeRestockExtra(${i})">✕</button>
+      </div>`).join('')}` : ''}
+    </div>`;
+}
+
+// ============================================================
+// BUNDLES TAB (finished gift sets you've assembled)
+// ============================================================
+function addBundle(){
+  bundlesMade.unshift({ id:newBundleId(), name:'New bundle', items:[], boxCost:'', price:'', stock:0, lowAlert:2, notes:'' });
+  saveBundlesMade(); renderBundles();
+}
+function removeBundle(i){
+  if(!confirm(`Remove "${bundlesMade[i].name}"?`)) return;
+  bundlesMade.splice(i,1); saveBundlesMade(); renderBundles();
+}
+function addBundleItemRow(i){
+  bundlesMade[i].items.push({ scentId:'', ml:50, qty:1 });
+  saveBundlesMade(); renderBundles();
+}
+function removeBundleItemRow(i,j){
+  bundlesMade[i].items.splice(j,1); saveBundlesMade(); renderBundles();
+}
+function adjustBundleStock(i,delta){
+  bundlesMade[i].stock = Math.max(0, (parseFloat(bundlesMade[i].stock)||0) + delta);
+  saveBundlesMade(); renderBundles();
+}
+function bundleItemsCost(items){
+  return (items||[]).reduce((a,it)=>{
+    const s = scents.find(x=>x.id===it.scentId);
+    if(!s) return a;
+    const cr = calcCost(s, it.ml);
+    return a + (cr ? cr.totalCostPB * (parseInt(it.qty)||1) : 0);
+  },0);
+}
+function saveBundleFromPlanner(){
+  const filled = bundleSlots.filter(sl=>sl.scentId);
+  if(filled.length < 2){ alert('Add at least 2 scents to the Bundle Planner first.'); return; }
+  const boxCost = parseFloat(document.getElementById('bundle-box-cost')?.value) || 0;
+  const targetMrg = (parseFloat(document.getElementById('bundle-margin')?.value) || 50) / 100;
+  const itemsCost = filled.reduce((a,sl)=>{
+    const c = BUNDLE_COST_LABELS.reduce((aa,k)=>aa+(parseFloat(sl.costs[k.key])||0),0);
+    return a + c*(sl.qty||1);
+  },0);
+  const totalCost = itemsCost + boxCost;
+  const recPrice = totalCost / (1-targetMrg);
+  bundlesMade.unshift({
+    id:newBundleId(), name:'Bundle from planner', boxCost, price: Math.round(recPrice*100)/100, stock:0, lowAlert:2, notes:'',
+    items: filled.map(sl=>({ scentId:sl.scentId, ml:sl.ml, qty:sl.qty||1 })),
+  });
+  saveBundlesMade();
+  showTab('bundles');
+}
+
+function renderBundles(){
+  const el = document.getElementById('bundles-list');
+  if(!bundlesMade.length){
+    el.innerHTML = `<div class="empty"><div class="empty-mark">🎁</div><p>No bundles saved yet — click "+ Add bundle", or build one in the Planner's Bundle Planner and save it from there.</p></div>`;
+    return;
+  }
+  el.innerHTML = bundlesMade.map((b,i)=>{
+    const itemsCost = bundleItemsCost(b.items);
+    const boxCost = parseFloat(b.boxCost)||0;
+    const totalCost = itemsCost + boxCost;
+    const price = b.price===''||b.price==null ? null : parseFloat(b.price);
+    const margin = price ? ((price-totalCost)/price*100) : null;
+    const stock = parseFloat(b.stock)||0;
+    const alert = parseFloat(b.lowAlert)||0;
+    const low = stock <= alert;
+    const pct = alert>0 ? (stock/(alert*2))*100 : (stock>0?100:0);
+    return `
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;gap:12px;align-items:center;flex:1;min-width:240px">
+          ${vial(pct, low?'--rust':'--sage')}
+          <div>
+            <input value="${escAttr(b.name)}" placeholder="Bundle name" style="font-family:var(--font-display);font-size:18px;font-weight:500;background:transparent;border:none;color:var(--text);padding:0;width:280px"
+              onchange="bundlesMade[${i}].name=this.value;saveBundlesMade()">
+            <div class="vial-label">${b.items.length} scent${b.items.length===1?'':'s'} · ${low?`<b style="color:var(--rust)">${stock} in stock — low</b>`:`<b style="color:var(--sage)">${stock} in stock</b>`}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="vial-label">Assembled:</span>
+          <button class="btn btn-sm btn-ghost" onclick="adjustBundleStock(${i},-1)">–</button>
+          <input type="number" value="${b.stock}" min="0" step="1" style="width:56px;text-align:center" onchange="bundlesMade[${i}].stock=parseFloat(this.value)||0;saveBundlesMade();renderBundles()">
+          <button class="btn btn-sm btn-ghost" onclick="adjustBundleStock(${i},1)">+</button>
+          <button class="btn btn-sm btn-danger" style="margin-left:6px" onclick="removeBundle(${i})">✕</button>
+        </div>
+      </div>
+
+      <div class="eyebrow" style="margin-bottom:8px">Contents</div>
+      <div style="display:grid;grid-template-columns:1fr 90px 80px 26px;gap:8px;margin-bottom:6px">
+        <span class="eyebrow">Scent</span><span class="eyebrow">Size</span><span class="eyebrow">Qty</span><span></span>
+      </div>
+      ${(b.items||[]).map((it,j)=>`
+      <div style="display:grid;grid-template-columns:1fr 90px 80px 26px;gap:8px;align-items:center;margin-bottom:6px">
+        <select onchange="bundlesMade[${i}].items[${j}].scentId=this.value;saveBundlesMade();renderBundles()">
+          <option value="">— choose scent —</option>
+          ${scents.map(sc=>`<option value="${sc.id}" ${sc.id==it.scentId?'selected':''}>${sc.name}</option>`).join('')}
+        </select>
+        <input type="number" value="${it.ml}" min="1" step="1" onchange="bundlesMade[${i}].items[${j}].ml=parseFloat(this.value)||50;saveBundlesMade();renderBundles()">
+        <input type="number" value="${it.qty}" min="1" step="1" onchange="bundlesMade[${i}].items[${j}].qty=parseInt(this.value)||1;saveBundlesMade();renderBundles()">
+        <button class="btn btn-sm btn-ghost" onclick="removeBundleItemRow(${i},${j})">✕</button>
+      </div>`).join('')}
+      <button class="btn btn-sm" style="margin-top:4px" onclick="addBundleItemRow(${i})">+ Add scent</button>
+
+      <hr class="rule">
+      <div class="grid4" style="align-items:end">
+        <div class="field"><label>Box / packaging cost (R)</label>
+          <input type="number" value="${b.boxCost}" min="0" step="0.01" placeholder="e.g. 45" onchange="bundlesMade[${i}].boxCost=this.value===''?'':parseFloat(this.value);saveBundlesMade();renderBundles()"></div>
+        <div class="field"><label>Selling price (R)</label>
+          <input type="number" value="${b.price}" min="0" step="0.01" placeholder="e.g. 650" onchange="bundlesMade[${i}].price=this.value===''?'':parseFloat(this.value);saveBundlesMade();renderBundles()"></div>
+        <div class="field"><label>Low stock alert below</label>
+          <input type="number" value="${b.lowAlert}" min="0" step="1" onchange="bundlesMade[${i}].lowAlert=parseFloat(this.value)||0;saveBundlesMade();renderBundles()"></div>
+        <div>
+          <div class="vial-label">Cost / margin</div>
+          <div style="font-family:var(--font-display);font-size:19px">
+            ${fmtR(totalCost)}${margin!==null ? ` <span style="font-size:13px;color:${margin<20?'var(--rust)':'var(--sage)'}">${fmtPct(margin)} margin</span>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// CLIENTS TAB
+// ============================================================
+function addClient(){
+  clients.unshift({ id:newClientId(), name:'New client', phone:'', email:'', notes:'', createdAt: todayStr() });
+  saveClients(); renderClients();
+}
+function removeClient(i){
+  const c = clients[i];
+  if(!confirm(`Remove "${c.name}"? Their past sales will stay on record as walk-in sales.`)) return;
+  sales.forEach(s=>{ if(s.clientId===c.id) s.clientId=''; });
+  saveSales();
+  clients.splice(i,1); saveClients(); renderClients();
+}
+function clientStats(clientId){
+  const own = sales.filter(s=>s.clientId===clientId);
+  const revenue = own.reduce((a,s)=>a+(parseFloat(s.price)||0)*(parseInt(s.qty)||0),0);
+  const orders = own.length;
+  const last = own.reduce((a,s)=> (!a || s.date>a) ? s.date : a, '');
+  return { revenue, orders, last };
+}
+function renderClients(){
+  const el = document.getElementById('clients-list');
+  if(!clients.length){
+    el.innerHTML = `<div class="empty"><div class="empty-mark">🤝</div><p>No clients yet — click "+ Add client" to start building your list.</p></div>`;
+    return;
+  }
+  const maxRevenue = Math.max(1, ...clients.map(c=>clientStats(c.id).revenue));
+  el.innerHTML = clients.map((c,i)=>{
+    const st = clientStats(c.id);
+    const pct = (st.revenue / maxRevenue) * 100;
+    return `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">
+        <div style="display:flex;gap:12px;align-items:center;flex:1;min-width:240px">
+          ${vial(pct, st.revenue>0 ? '--sage' : undefined)}
+          <div style="flex:1">
+            <input value="${escAttr(c.name)}" placeholder="Client name" style="font-family:var(--font-display);font-size:17px;font-weight:500;background:transparent;border:none;color:var(--text);padding:0;width:100%"
+              onchange="clients[${i}].name=this.value;saveClients();renderClients()">
+            <div class="vial-label">${st.orders} order${st.orders===1?'':'s'} · ${fmtR(st.revenue)} total${st.last?` · last ${st.last}`:''}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="viewClientSales('${c.id}')">View sales</button>
+          <button class="btn btn-sm btn-danger" onclick="removeClient(${i})">✕ Remove</button>
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="field"><label>Phone</label>
+          <input value="${escAttr(c.phone)}" placeholder="082 000 0000" onchange="clients[${i}].phone=this.value;saveClients()"></div>
+        <div class="field"><label>Email</label>
+          <input value="${escAttr(c.email)}" placeholder="name@email.com" onchange="clients[${i}].email=this.value;saveClients()"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>Notes</label>
+        <textarea rows="2" placeholder="Preferences, birthday, how you met…" onchange="clients[${i}].notes=this.value;saveClients()">${escAttr(c.notes||'')}</textarea></div>
+    </div>`;
+  }).join('');
+}
+function viewClientSales(clientId){
+  salesFilterClient = clientId;
+  showTab('sales');
+}
+
+// ============================================================
+// QUOTES TAB
+// ============================================================
+function makeQuoteItem(){ return { scentId:'', ml:50, qty:1, ourPrice:'', recPrice:'' }; }
+function blankQuoteDraft(){
+  return { id:null, date: todayStr(), clientId:'', clientName:'', marginPct:40, notes:'', items:[makeQuoteItem()], extras:[], fromBundle:'' };
+}
+let quoteDraft = blankQuoteDraft();
+
+function newQuoteDraft(){
+  quoteDraft = blankQuoteDraft();
+  renderQuoteBuilder();
+}
+
+function quoteLoadBundle(bundleId){
+  if(!bundleId) return;
+  const b = bundlesMade.find(x=>x.id===bundleId);
+  if(!b) return;
+  const items = (b.items||[]).filter(it=>it.scentId).map(it=>{
+    const s = scents.find(x=>x.id==it.scentId);
+    const sp = s && (s.sizePrices||[]).find(p=>p.ml===it.ml);
+    const ourPrice = sp && sp.price!=='' && sp.price!=null ? parseFloat(sp.price) : '';
+    const item = { scentId: it.scentId, ml: it.ml, qty: it.qty||1, ourPrice, recPrice:'', recAuto:true };
+    return item;
+  });
+  if(!items.length){ alert(`"${b.name}" has no scents in it yet — add some in the Bundles tab first.`); return; }
+  quoteDraft.items = items;
+  quoteDraft.items.forEach((it,i)=>quoteRecalcItem(i));
+  quoteDraft.extras = [];
+  const boxCost = parseFloat(b.boxCost)||0;
+  if(boxCost>0) quoteDraft.extras.push({ label:`Packaging (${b.name})`, amount: boxCost });
+  quoteDraft.fromBundle = b.name;
+  if(!quoteDraft.notes) quoteDraft.notes = `Bundle: ${b.name}`;
+  renderQuoteBuilder();
+}
+
+function addQuoteExtra(){ if(!quoteDraft.extras) quoteDraft.extras=[]; quoteDraft.extras.push({label:'Other cost', amount:0}); renderQuoteBuilder(); }
+function removeQuoteExtra(i){ quoteDraft.extras.splice(i,1); renderQuoteBuilder(); }
+
+function quoteItemScentChanged(i){
+  const it = quoteDraft.items[i];
+  const s = scents.find(x=>x.id==it.scentId);
+  if(!s) return;
+  const sp = (s.sizePrices||[]).find(p=>p.ml===it.ml) || (s.sizePrices||[])[0];
+  if(sp){
+    it.ml = sp.ml;
+    if(sp.price !== '' && sp.price != null) it.ourPrice = parseFloat(sp.price);
+  }
+  quoteRecalcItem(i);
+  renderQuoteBuilder();
+}
+function quoteSizeChanged(i){
+  const it = quoteDraft.items[i];
+  const s = scents.find(x=>x.id==it.scentId);
+  const sp = s && (s.sizePrices||[]).find(p=>p.ml===it.ml);
+  if(sp && sp.price !== '' && sp.price != null) it.ourPrice = parseFloat(sp.price);
+  quoteRecalcItem(i);
+  renderQuoteBuilder();
+}
+function quoteRecalcItem(i){
+  const it = quoteDraft.items[i];
+  const margin = (parseFloat(quoteDraft.marginPct)||0) / 100;
+  const ourPrice = parseFloat(it.ourPrice) || 0;
+  if(it.recPrice === '' || it.recPrice == null || it.recAuto !== false){
+    it.recPrice = margin < 1 ? Math.round(ourPrice / (1-margin)) : ourPrice;
+    it.recAuto = true;
+  }
+}
+function quoteRecalcAll(){
+  quoteDraft.items.forEach((it,i)=>{ if(it.recAuto !== false) quoteRecalcItem(i); });
+}
+function addQuoteItem(){ quoteDraft.items.push(makeQuoteItem()); renderQuoteBuilder(); }
+function removeQuoteItem(i){ quoteDraft.items.splice(i,1); if(!quoteDraft.items.length) quoteDraft.items.push(makeQuoteItem()); renderQuoteBuilder(); }
+
+function quoteTotals(){
+  const items = (quoteDraft.items||[]).filter(it=>it.scentId);
+  const extras = quoteDraft.extras||[];
+  let totalOurs=0, totalRec=0, totalQty=0;
+  items.forEach(it=>{
+    const qty = parseInt(it.qty)||0;
+    totalOurs += (parseFloat(it.ourPrice)||0)*qty;
+    totalRec  += (parseFloat(it.recPrice)||0)*qty;
+    totalQty  += qty;
+  });
+  const extrasTotal = extras.reduce((a,ex)=>a+(parseFloat(ex.amount)||0),0);
+  totalOurs += extrasTotal;
+  return { totalOurs, totalRec, totalProfit: totalRec-totalOurs, totalQty, items, extras, extrasTotal };
+}
+
+function renderQuoteBuilder(){
+  const el = document.getElementById('quote-builder');
+  if(!el) return;
+  const t = quoteTotals();
+  el.innerHTML = `
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Quote details</div>
+        <div class="field" style="margin-top:10px">
+          <label>Generate from a saved bundle (optional)</label>
+          <select onchange="quoteLoadBundle(this.value); this.value='';">
+            <option value="">— Choose a saved bundle to load its scents —</option>
+            ${bundlesMade.map(b=>`<option value="${b.id}">${escAttr(b.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <div class="field"><label>Client</label>
+            <select onchange="quoteDraft.clientId=this.value;const c=clients.find(x=>x.id===this.value);quoteDraft.clientName=c?c.name:quoteDraft.clientName;renderQuoteBuilder()">
+              <option value="">— Type name below —</option>
+              ${clients.map(c=>`<option value="${c.id}" ${c.id===quoteDraft.clientId?'selected':''}>${escAttr(c.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Client / business name</label>
+            <input value="${escAttr(quoteDraft.clientName)}" placeholder="e.g. Luxe Scents" oninput="quoteDraft.clientName=this.value">
+          </div>
+          <div class="field"><label>Quote date</label>
+            <input type="date" value="${quoteDraft.date}" onchange="quoteDraft.date=this.value">
+          </div>
+          <div class="field"><label>Recommended resale margin (%)</label>
+            <input type="number" min="1" max="99" value="${quoteDraft.marginPct}" oninput="quoteDraft.marginPct=this.value;quoteRecalcAll();renderQuoteBuilder()">
+          </div>
+        </div>
+        <hr class="rule">
+        <div class="eyebrow" style="margin-bottom:8px">Scents on this quote</div>
+        <div id="quote-items-list">
+          ${quoteDraft.items.map((it,i)=>{
+            const s = scents.find(x=>x.id==it.scentId);
+            const sizes = s && s.sizePrices && s.sizePrices.length ? s.sizePrices.map(sp=>sp.ml) : [it.ml];
+            return `
+            <div style="display:grid;grid-template-columns:2fr 80px 60px 100px 100px 28px;gap:8px;align-items:end;margin-bottom:8px">
+              <div class="field"><label>Scent</label>
+                <select onchange="quoteDraft.items[${i}].scentId=this.value;quoteItemScentChanged(${i})">
+                  <option value="">— Select —</option>
+                  ${scents.map(sc=>`<option value="${sc.id}" ${sc.id==it.scentId?'selected':''}>${escAttr(sc.name)}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field"><label>Size</label>
+                <select onchange="quoteDraft.items[${i}].ml=parseFloat(this.value);quoteSizeChanged(${i})">
+                  ${sizes.map(ml=>`<option value="${ml}" ${ml==it.ml?'selected':''}>${ml}ml</option>`).join('')}
+                </select>
+              </div>
+              <div class="field"><label>Qty</label>
+                <input type="number" min="1" step="1" value="${it.qty}" onchange="quoteDraft.items[${i}].qty=parseInt(this.value)||1;renderQuoteBuilder()">
+              </div>
+              <div class="field"><label>Our price</label>
+                <input type="number" min="0" step="0.01" value="${it.ourPrice}" onchange="quoteDraft.items[${i}].ourPrice=this.value===''?'':parseFloat(this.value);quoteDraft.items[${i}].recAuto=false;quoteRecalcItem(${i});renderQuoteBuilder()">
+              </div>
+              <div class="field"><label>Client resells at</label>
+                <input type="number" min="0" step="0.01" value="${it.recPrice}" onchange="quoteDraft.items[${i}].recPrice=this.value===''?'':parseFloat(this.value);quoteDraft.items[${i}].recAuto=false;renderQuoteBuilder()">
+              </div>
+              <button class="btn btn-sm btn-ghost" style="padding:8px" onclick="removeQuoteItem(${i})">✕</button>
+            </div>`;
+          }).join('')}
+        </div>
+        <button class="btn btn-sm" onclick="addQuoteItem()" style="margin-top:6px">+ Add scent</button>
+        <hr class="rule">
+        <div class="eyebrow" style="margin-bottom:8px">Other costs (packaging, shipping, etc.)</div>
+        <div id="quote-extras-list">
+          ${(quoteDraft.extras||[]).length===0 ? `<div class="vial-label">No extra costs added.</div>` : (quoteDraft.extras||[]).map((ex,i)=>`
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input value="${escAttr(ex.label)}" placeholder="Cost name" style="flex:1"
+              oninput="quoteDraft.extras[${i}].label=this.value">
+            <div style="position:relative;width:100px">
+              <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-faint)">R</span>
+              <input type="number" value="${ex.amount}" min="0" step="0.01" style="padding-left:20px" oninput="quoteDraft.extras[${i}].amount=parseFloat(this.value)||0;renderQuoteBuilder()">
+            </div>
+            <button class="btn btn-sm btn-ghost" style="padding:6px 10px" onclick="removeQuoteExtra(${i})">✕</button>
+          </div>`).join('')}
+        </div>
+        <button class="btn btn-sm" onclick="addQuoteExtra()" style="margin-top:6px">+ Add cost</button>
+        <div class="field" style="margin-top:14px"><label>Notes for client (optional)</label>
+          <textarea rows="2" placeholder="e.g. Valid for 14 days, lead time 5-7 working days…" oninput="quoteDraft.notes=this.value">${escAttr(quoteDraft.notes||'')}</textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">Quote summary</div>
+        <div style="padding:12px 14px;background:var(--amber-soft);border-left:2px solid var(--amber);border-radius:var(--radius);margin-bottom:14px">
+          <div class="grid2" style="row-gap:8px">
+            <div><div class="vial-label">Total bottles</div><div style="font-family:var(--font-display);font-size:19px">${t.totalQty}</div></div>
+            <div><div class="vial-label">Total to pay us</div><div style="font-family:var(--font-display);font-size:19px;color:var(--rust)">${fmtR(t.totalOurs)}</div></div>
+            <div><div class="vial-label">Client's recommended revenue</div><div style="font-family:var(--font-display);font-size:19px;color:var(--sage)">${fmtR0(t.totalRec)}</div></div>
+            <div><div class="vial-label">Client's possible profit</div><div style="font-family:var(--font-display);font-size:19px;color:var(--sage)">${fmtR(t.totalProfit)}</div></div>
+          </div>
+          ${t.extrasTotal>0 ? `<div class="vial-label" style="margin-top:8px">Includes ${fmtR(t.extrasTotal)} in other costs</div>` : ''}
+        </div>
+        <div class="eyebrow" style="margin-bottom:8px">Our banking details</div>
+        <div style="font-size:12.5px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius);margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:130px 1fr;row-gap:6px">
+            <span class="vial-label">Bank</span><span>${BANK_DETAILS.bank}</span>
+            <span class="vial-label">Account holder</span><span>${BANK_DETAILS.holder}</span>
+            <span class="vial-label">Business name</span><span>${BANK_DETAILS.business}</span>
+            <span class="vial-label">Account type</span><span>${BANK_DETAILS.accType}</span>
+            <span class="vial-label">Account number</span><span style="font-variant-numeric:tabular-nums">${BANK_DETAILS.accNumber}</span>
+            <span class="vial-label">SWIFT/BIC</span><span>${BANK_DETAILS.swift}</span>
+            <span class="vial-label">Branch code</span><span>${BANK_DETAILS.branchCode}</span>
+          </div>
+        </div>
+        <button class="btn btn-gold" style="width:100%;margin-bottom:8px" onclick="downloadQuote()">⬇ Download / Print quote</button>
+        <button class="btn btn-sm" style="width:100%" onclick="saveQuoteToList()">💾 Save this quote</button>
+      </div>
+    </div>
+  `;
+}
+
+function saveQuoteToList(){
+  const t = quoteTotals();
+  if(!t.items.length){ alert('Add at least one scent to the quote first.'); return; }
+  if(quoteDraft.id){
+    const idx = quotes.findIndex(q=>q.id===quoteDraft.id);
+    if(idx>-1) quotes[idx] = JSON.parse(JSON.stringify(quoteDraft));
+  } else {
+    quoteDraft.id = newQuoteId();
+    quotes.unshift(JSON.parse(JSON.stringify(quoteDraft)));
+  }
+  saveQuotes(); renderQuoteList();
+  alert('Quote saved.');
+}
+
+function loadQuoteToBuilder(id){
+  const q = quotes.find(x=>x.id===id);
+  if(!q) return;
+  quoteDraft = JSON.parse(JSON.stringify(q));
+  if(!quoteDraft.extras) quoteDraft.extras = [];
+  if(!quoteDraft.items || !quoteDraft.items.length) quoteDraft.items = [makeQuoteItem()];
+  renderQuoteBuilder();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function removeQuoteFromList(id){
+  if(!confirm('Delete this saved quote?')) return;
+  quotes = quotes.filter(q=>q.id!==id);
+  saveQuotes(); renderQuoteList();
+}
+
+function renderQuoteList(){
+  const el = document.getElementById('quote-saved');
+  if(!el) return;
+  if(!quotes.length){
+    el.innerHTML = `<div class="card-sub">No saved quotes yet — build one above and click "Save this quote".</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:8px">Saved quotes</div>
+    ${quotes.map(q=>{
+      const items = (q.items||[]).filter(it=>it.scentId);
+      const totalOurs = items.reduce((a,it)=>a+(parseFloat(it.ourPrice)||0)*(parseInt(it.qty)||0),0);
+      return `
+      <div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-family:var(--font-display);font-size:15px">${escAttr(q.clientName||'Unnamed client')}</div>
+          <div class="vial-label">${q.date} · ${items.length} scent${items.length===1?'':'s'} · ${fmtR(totalOurs)} owed to us</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="loadQuoteToBuilder('${q.id}')">Edit / Reprint</button>
+          <button class="btn btn-sm btn-danger" onclick="removeQuoteFromList('${q.id}')">✕ Delete</button>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function downloadQuote(){
+  const t = quoteTotals();
+  if(!t.items.length){ alert('Add at least one scent to the quote first.'); return; }
+  const clientLabel = escAttr(quoteDraft.clientName || 'Client');
+  const rows = t.items.map(it=>{
+    const s = scents.find(x=>x.id==it.scentId);
+    const qty = parseInt(it.qty)||0;
+    const ourPrice = parseFloat(it.ourPrice)||0;
+    const recPrice = parseFloat(it.recPrice)||0;
+    return `<tr>
+      <td>${escAttr(s?s.name:'Scent')}</td>
+      <td class="num">${it.ml}ml</td>
+      <td class="num">${qty}</td>
+      <td class="num">${fmtR(ourPrice)}</td>
+      <td class="num">${fmtR(ourPrice*qty)}</td>
+      <td class="num">${fmtR0(recPrice)}</td>
+      <td class="num">${fmtR0((recPrice-ourPrice)*qty)}</td>
+    </tr>`;
+  }).join('');
+  const extraRows = (t.extras||[]).filter(ex=>parseFloat(ex.amount)>0).map(ex=>`<tr>
+      <td colspan="4">${escAttr(ex.label)}</td>
+      <td class="num">${fmtR(parseFloat(ex.amount)||0)}</td>
+      <td colspan="2"></td>
+    </tr>`).join('');
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Quote — ${clientLabel}</title>
+  <style>
+    body{font-family:'DM Sans',Arial,sans-serif;color:#1a1a1a;padding:36px;max-width:820px;margin:0 auto}
+    h1{font-family:Georgia,serif;font-size:26px;margin-bottom:0;color:#0a0a0a}
+    .sub{color:#666;margin-top:4px;margin-bottom:24px;font-size:13px}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px;table-layout:fixed}
+    th,td{border:1px solid #ddd;padding:8px 10px;text-align:left}
+    th:first-child,td:first-child{width:26%}
+    th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+    th{background:#f5f0e8}
+    .totals{margin-left:auto;width:320px;font-size:13.5px}
+    .totals div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee}
+    .totals .grand{font-weight:700;font-size:15px;border-bottom:none;padding-top:10px}
+    .bank{margin-top:30px;padding:14px 16px;background:#f5f0e8;border-left:3px solid #c9a84c;font-size:13px}
+    .bank-grid{display:grid;grid-template-columns:190px 1fr;row-gap:6px}
+    .foot{margin-top:26px;font-size:12px;color:#888}
+    @media print{ body{padding:0} }
+  </style></head><body>
+    <h1>BrandScent Co. — Quote</h1>
+    <div class="sub">Quote for ${clientLabel} · ${quoteDraft.date}${quoteDraft.fromBundle ? ` · Bundle: ${escAttr(quoteDraft.fromBundle)}` : ''}</div>
+    <table>
+      <thead><tr><th>Scent</th><th class="num">Size</th><th class="num">Qty</th><th class="num">Our price / unit</th><th class="num">Total to us</th><th class="num">Recommended resale / unit</th><th class="num">Client profit</th></tr></thead>
+      <tbody>${rows}${extraRows}</tbody>
+    </table>
+    <div class="totals">
+      <div><span>Total bottles</span><span>${t.totalQty}</span></div>
+      <div><span>Total to pay us</span><span>${fmtR(t.totalOurs)}</span></div>
+      <div><span>Client's recommended revenue</span><span>${fmtR0(t.totalRec)}</span></div>
+      <div class="grand"><span>Client's possible profit</span><span>${fmtR(t.totalProfit)}</span></div>
+    </div>
+    ${quoteDraft.notes ? `<div class="sub" style="margin-top:16px"><b>Notes:</b> ${escAttr(quoteDraft.notes)}</div>` : ''}
+    <div class="bank">
+      <div class="bank-grid">
+        <b>Bank</b><span>${BANK_DETAILS.bank}</span>
+        <b>Account holder</b><span>${BANK_DETAILS.holder}</span>
+        <b>Business name</b><span>${BANK_DETAILS.business}</span>
+        <b>Account type</b><span>${BANK_DETAILS.accType}</span>
+        <b>Account number / IBAN</b><span style="font-variant-numeric:tabular-nums">${BANK_DETAILS.accNumber}</span>
+        <b>SWIFT/BIC</b><span>${BANK_DETAILS.swift}</span>
+        <b>Branch code</b><span>${BANK_DETAILS.branchCode}</span>
+      </div>
+    </div>
+    <div class="foot">Payment reflects your order as final. Please use your business name as payment reference.</div>
+  </body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 300);
+}
+
+function initQuote(){
+  const sel = null;
+  renderQuoteBuilder();
+  renderQuoteList();
+}
+
+// ============================================================
+// SALES TAB
+// ============================================================
+let saleDraft = { date: todayStr(), scentId:'', ml:50, qty:1, price:'', clientId:'', channel:'Instagram', note:'' };
+let salesFilterClient = '';
+let salesFilterPeriod = 'all'; // 'all' | 'month'
+
+const SALE_CHANNELS = ['Instagram','Website','Market / Pop-up','WhatsApp','Referral','Other'];
+
+function saleAutoFillPrice(){
+  const s = scents.find(x=>x.id==saleDraft.scentId);
+  if(!s) return;
+  const sp = (s.sizePrices||[]).find(p=>p.ml===saleDraft.ml);
+  if(sp && sp.price !== '') saleDraft.price = sp.price;
+}
+
+function recordSale(){
+  if(!saleDraft.scentId){ alert('Choose a scent first.'); return; }
+  if(!saleDraft.qty || saleDraft.qty < 1){ alert('Quantity must be at least 1.'); return; }
+  if(saleDraft.price === '' || saleDraft.price === null || isNaN(parseFloat(saleDraft.price))){ alert('Enter a selling price.'); return; }
+  sales.unshift({
+    id: newSaleId(), date: saleDraft.date || todayStr(), scentId: saleDraft.scentId, ml: saleDraft.ml,
+    qty: parseInt(saleDraft.qty)||1, price: parseFloat(saleDraft.price)||0,
+    clientId: saleDraft.clientId, channel: saleDraft.channel, note: saleDraft.note,
+  });
+  saveSales();
+  saleDraft = { date: saleDraft.date, scentId: saleDraft.scentId, ml: saleDraft.ml, qty:1, price:'', clientId: saleDraft.clientId, channel: saleDraft.channel, note:'' };
+  renderSales();
+}
+function removeSale(id){
+  sales = sales.filter(s=>s.id!==id);
+  saveSales(); renderSales();
+}
+function setSalesPeriod(p){ salesFilterPeriod = p; renderSales(); }
+function setSalesClientFilter(id){ salesFilterClient = id; renderSales(); }
+
+function filteredSales(){
+  const now = new Date(); const thisMonth = now.toISOString().slice(0,7);
+  return sales.filter(s=>{
+    if(salesFilterClient && s.clientId !== salesFilterClient) return false;
+    if(salesFilterPeriod==='month' && (s.date||'').slice(0,7) !== thisMonth) return false;
+    return true;
+  });
+}
+
+function renderSales(){
+  const el = document.getElementById('sales-body');
+  const s = scents.find(x=>x.id==saleDraft.scentId);
+  const sizeOptions = s && s.sizePrices && s.sizePrices.length
+    ? s.sizePrices.map(sp=>`<option value="${sp.ml}" ${sp.ml==saleDraft.ml?'selected':''}>${sp.ml}ml</option>`).join('')
+    : `<option value="${saleDraft.ml}">${saleDraft.ml}ml</option>`;
+
+  const list = filteredSales();
+  const filterClientName = salesFilterClient ? (clients.find(c=>c.id===salesFilterClient)?.name || 'Unknown client') : '';
+
+  const enriched = list.map(sale=>{
+    const sc = scents.find(x=>x.id==sale.scentId);
+    const cr = sc ? calcCost(sc, sale.ml) : null;
+    const costPB = cr ? cr.totalCostPB : null;
+    const revenue = sale.price * sale.qty;
+    const profit = costPB!==null ? (sale.price - costPB) * sale.qty : null;
+    const client = clients.find(c=>c.id===sale.clientId);
+    return { ...sale, scentName: sc ? sc.name : '(deleted scent)', revenue, profit, clientName: client ? client.name : 'Walk-in' };
+  });
+  const totalRevenue = enriched.reduce((a,r)=>a+r.revenue,0);
+  const totalProfit = enriched.reduce((a,r)=>a+(r.profit||0),0);
+
+  el.innerHTML = `
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Record a sale</div>
+        <div class="card-sub">Log what sold, to who, and where.</div>
+        <div class="grid2" style="row-gap:14px;margin-bottom:14px">
+          <div class="field"><label>Date</label>
+            <input type="date" value="${saleDraft.date}" onchange="saleDraft.date=this.value">
+          </div>
+          <div class="field"><label>Channel</label>
+            <select onchange="saleDraft.channel=this.value">
+              ${SALE_CHANNELS.map(c=>`<option ${c===saleDraft.channel?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Scent</label>
+            <select onchange="saleDraft.scentId=this.value;saleAutoFillPrice();renderSales()">
+              <option value="">— choose scent —</option>
+              ${scents.map(sc=>`<option value="${sc.id}" ${sc.id==saleDraft.scentId?'selected':''}>${sc.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Size</label>
+            <select onchange="saleDraft.ml=parseFloat(this.value)||50;saleAutoFillPrice();renderSales()">${sizeOptions}</select>
+          </div>
+          <div class="field"><label>Quantity</label>
+            <input type="number" min="1" step="1" value="${saleDraft.qty}" onchange="saleDraft.qty=parseInt(this.value)||1">
+          </div>
+          <div class="field"><label>Price each (R)</label>
+            <input type="number" min="0" step="0.01" placeholder="e.g. 280" value="${saleDraft.price}" onchange="saleDraft.price=this.value">
+          </div>
+          <div class="field"><label>Client</label>
+            <select onchange="saleDraft.clientId=this.value">
+              <option value="" ${!saleDraft.clientId?'selected':''}>Walk-in / no client</option>
+              ${clients.map(c=>`<option value="${c.id}" ${c.id==saleDraft.clientId?'selected':''}>${c.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Note (optional)</label>
+            <input value="${escAttr(saleDraft.note)}" placeholder="e.g. birthday gift" onchange="saleDraft.note=this.value">
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="recordSale()">+ Record sale</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:2px">Summary</div>
+        <div class="card-sub">${salesFilterPeriod==='month'?'This month':'All time'}${filterClientName?` · ${filterClientName}`:''}</div>
+        <div class="grid2" style="row-gap:14px">
+          <div><div class="vial-label">Sales</div><div style="font-family:var(--font-display);font-size:24px">${enriched.length}</div></div>
+          <div><div class="vial-label">Revenue</div><div style="font-family:var(--font-display);font-size:24px;color:var(--sage)">${fmtR(totalRevenue)}</div></div>
+          <div><div class="vial-label">Profit</div><div style="font-family:var(--font-display);font-size:24px;color:${totalProfit>=0?'var(--sage)':'var(--rust)'}">${fmtR(totalProfit)}</div></div>
+          <div><div class="vial-label">Avg order value</div><div style="font-family:var(--font-display);font-size:24px">${fmtR(enriched.length?totalRevenue/enriched.length:0)}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;margin:22px 0 14px 0;flex-wrap:wrap">
+      <button class="pill ${salesFilterPeriod==='all'?'active':''}" onclick="setSalesPeriod('all')">All time</button>
+      <button class="pill ${salesFilterPeriod==='month'?'active':''}" onclick="setSalesPeriod('month')">This month</button>
+      ${salesFilterClient ? `<button class="pill active" onclick="setSalesClientFilter('')">${escAttr(filterClientName)} ✕</button>` : ''}
+    </div>
+
+    <div class="card">
+      ${enriched.length===0 ? `<div class="empty"><div class="empty-mark">🧾</div><p>No sales recorded ${salesFilterPeriod==='month'?'this month':'yet'}.</p></div>` : `
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="text-align:left;border-bottom:1px solid var(--border-strong)">
+          <th style="padding:6px 8px">Date</th><th style="padding:6px 8px">Scent</th><th style="padding:6px 8px">Qty</th>
+          <th style="padding:6px 8px">Price</th><th style="padding:6px 8px">Client</th><th style="padding:6px 8px">Channel</th>
+          <th style="padding:6px 8px">Revenue</th><th style="padding:6px 8px">Profit</th><th style="padding:6px 8px"></th>
+        </tr></thead>
+        <tbody>
+          ${enriched.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:6px 8px;font-family:var(--font-mono);font-size:11.5px">${r.date}</td>
+            <td style="padding:6px 8px">${escAttr(r.scentName)} <span class="vial-label">${r.ml}ml</span></td>
+            <td style="padding:6px 8px">${r.qty}</td>
+            <td style="padding:6px 8px">${fmtR(r.price)}</td>
+            <td style="padding:6px 8px"><a href="#" onclick="setSalesClientFilter('${r.clientId}');return false" style="color:var(--text-soft);text-decoration:none;border-bottom:1px dotted var(--text-faint)">${escAttr(r.clientName)}</a></td>
+            <td style="padding:6px 8px">${r.channel||''}</td>
+            <td style="padding:6px 8px;color:var(--sage);font-weight:600">${fmtR(r.revenue)}</td>
+            <td style="padding:6px 8px;color:${r.profit===null?'var(--text-faint)':(r.profit>=0?'var(--sage)':'var(--rust)')};font-weight:600">${r.profit===null?'—':fmtR(r.profit)}</td>
+            <td style="padding:6px 8px"><button class="btn btn-sm btn-ghost" onclick="removeSale('${r.id}')">✕</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>`}
+    </div>
+  `;
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  const last = localStorage.getItem('bsc_last_tab') || 'dashboard';
+  showTab(ALL_TABS.includes(last) ? last : 'dashboard');
+  renderSyncIndicator();
+  if(syncConfigured()){
+    flushOfflineQueue().then(()=> pullFromSheet(false).then(()=> refreshCurrentTab()));
+  }
+});
+
+// Register service worker so the installed app can launch and be used offline.
+// Only works when served over http(s) — silently does nothing when opened as a local file.
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
